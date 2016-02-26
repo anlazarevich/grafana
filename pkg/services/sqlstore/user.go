@@ -268,28 +268,20 @@ func GetUserOrgList(query *m.GetUserOrgListQuery) error {
 
 func GetSignedInUser(query *m.GetSignedInUserQuery) error {
 	var rawSql = `SELECT
-	                u.id           as user_id,
-	                u.is_admin     as is_grafana_admin,
-	                u.email        as email,
-	                u.login        as login,
-									u.name         as name,
-									u.theme        as theme,
-	                org.name       as org_name,
-	                org_user.role  as org_role,
+	                u.id           as user_id,	                
+	                u.email        as email,	                
+				    u.name         as name,
+	                u.role  as 	  role,
 	                org.id         as org_id
-	                FROM ` + dialect.Quote("user") + ` as u
-									LEFT OUTER JOIN org_user on org_user.org_id = u.org_id and org_user.user_id = u.id
-	                LEFT OUTER JOIN org on org.id = u.org_id `
+	                FROM users as u						
+	                LEFT OUTER JOIN accounts as org on org.id = u.account_id `
 
-	sess := x.Table("user")
+	sess := x.Table("users")
 	if query.UserId > 0 {
 		sess.Sql(rawSql+"WHERE u.id=?", query.UserId)
-	} else if query.Login != "" {
-		sess.Sql(rawSql+"WHERE u.login=?", query.Login)
 	} else if query.Email != "" {
 		sess.Sql(rawSql+"WHERE u.email=?", query.Email)
-	}
-
+	}	
 	var user m.SignedInUser
 	has, err := sess.Get(&user)
 	if err != nil {
@@ -298,9 +290,11 @@ func GetSignedInUser(query *m.GetSignedInUserQuery) error {
 		return m.ErrUserNotFound
 	}
 
-	if user.OrgRole == "" {
-		user.OrgId = -1
-		user.OrgName = "Org missing"
+	// maintain XaaS user role compatibilty
+	if user.Role > 1 {
+		user.OrgRole = m.ROLE_EDITOR
+	} else {
+		user.OrgRole = m.ROLE_VIEWER
 	}
 
 	query.Result = &user

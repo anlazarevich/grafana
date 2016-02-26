@@ -94,7 +94,8 @@ func initRuntime() {
 	setting.LogConfigurationInfo()
 
 	sqlstore.NewEngine()
-	sqlstore.EnsureAdminUser()
+	// disable default Grafana admin user
+	//sqlstore.EnsureAdminUser()
 }
 
 func writePIDFile() {

@@ -133,6 +133,7 @@ type SignedInUser struct {
 	OrgId          int64
 	OrgName        string
 	OrgRole        RoleType
+	Role	           int
 	Login          string
 	Name           string
 	Email          string
