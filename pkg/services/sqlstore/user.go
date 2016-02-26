@@ -292,9 +292,9 @@ func GetSignedInUser(query *m.GetSignedInUserQuery) error {
 
 	// maintain XaaS user role compatibilty
 	if user.Role > 1 {
-		user.OrgRole = m.ROLE_EDITOR
+		user.OrgRole = m.ROLE_ADMIN
 	} else {
-		user.OrgRole = m.ROLE_VIEWER
+		user.OrgRole = m.ROLE_EDITOR
 	}
 
 	query.Result = &user
