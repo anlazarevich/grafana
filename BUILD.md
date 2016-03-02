@@ -10,7 +10,7 @@
 2. $ export GOPATH=`pwd`
 3. $ mkdir -p src/github.com/grafana bin pkg
 4. $ cd src/github.com/grafana
-5. $ git clone https://github.com/seizadi/grafana  # clone forked repo instead of original
+5. $ git clone https://github.com/Infoblox-CTO/grafana  # clone forked repo instead of original
 6. $ cd grafana
 7. $ go run build.go setup          # (only needed once to install godep)
 8. $ $GOPATH/bin/godep restore         # (will pull down all golang lib dependencies in your current GOPATH)
