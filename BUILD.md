@@ -6,6 +6,7 @@
 
 ##Build from source instructions:
 
+```
 1. Go to Grafana working dir, e.g. /opt/grafana. If it doesn't exist then create ones
 2. $ export GOPATH=`pwd`
 3. $ mkdir -p src/github.com/grafana bin pkg
@@ -17,8 +18,11 @@
 9. $ go run build.go build              # (or 'go build .')
 10. $ npm install
 11. $ grunt
+```
 
 ##Run Grafana Server
 
 And finally run Grafana server:
+```
 $ bin/grafana-server
+```
