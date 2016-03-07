@@ -30,8 +30,9 @@ module.exports = function(config) {
         'reflect-metadata/*.js',
         'reflect-metadata/*.ts',
         'reflect-metadata/*.d.ts',
-        'rxjs/bundles/*.js',
-        'rxjs/Rx.d.ts',
+        'rxjs/**/*',
+        'tether/**/*',
+        'tether-drop/**/*',
       ],
       dest: '<%= srcDir %>/vendor/npm'
     }

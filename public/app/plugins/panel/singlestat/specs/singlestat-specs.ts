@@ -2,15 +2,9 @@
 
 import {describe, beforeEach, it, sinon, expect, angularMocks} from '../../../../../test/lib/common';
 
-import 'app/features/panel/panel_srv';
-import 'app/features/panel/panel_helper';
-
 import angular from 'angular';
 import helpers from '../../../../../test/specs/helpers';
-import {SingleStatCtrl} from '../controller';
-
-
-angular.module('grafana.controllers').controller('SingleStatCtrl', SingleStatCtrl);
+import {SingleStatCtrl} from '../module';
 
 describe('SingleStatCtrl', function() {
   var ctx = new helpers.ControllerTestContext();
@@ -25,7 +19,7 @@ describe('SingleStatCtrl', function() {
         beforeEach(angularMocks.module('grafana.controllers'));
 
         beforeEach(ctx.providePhase());
-        beforeEach(ctx.createControllerPhase('SingleStatCtrl'));
+        beforeEach(ctx.createPanelController(SingleStatCtrl));
 
         beforeEach(function() {
           setupFunc();
@@ -33,9 +27,9 @@ describe('SingleStatCtrl', function() {
             data: [{target: 'test.cpu1', datapoints: ctx.datapoints}]
           }));
 
-          ctx.scope.refreshData(ctx.datasource);
+          ctx.ctrl.refreshData(ctx.datasource);
           ctx.scope.$digest();
-          ctx.data = ctx.scope.data;
+          ctx.data = ctx.ctrl.data;
         });
       };
 
@@ -75,14 +69,20 @@ describe('SingleStatCtrl', function() {
 
   singleStatScenario('When value to text mapping is specified', function(ctx) {
     ctx.setup(function() {
-      ctx.datapoints = [[10,1]];
-      ctx.scope.panel.valueMaps = [{value: '10', text: 'OK'}];
+      ctx.datapoints = [[9.9,1]];
+      ctx.ctrl.panel.valueMaps = [{value: '10', text: 'OK'}];
+    });
+
+    it('value should remain', function() {
+      expect(ctx.data.value).to.be(9.9);
+    });
+
+    it('round should be rounded up', function() {
+      expect(ctx.data.valueRounded).to.be(10);
     });
 
     it('Should replace value with text', function() {
-      expect(ctx.data.value).to.be(10);
       expect(ctx.data.valueFormated).to.be('OK');
     });
-
   });
 });

@@ -1,6 +1,4 @@
-define([
-  './queryCtrl'
-],
+define([],
 function () {
   'use strict';
 
@@ -101,5 +99,7 @@ function () {
 
   }
 
-  return EarthquakeDatasource;
+  return {
+    EarthquakeDatasource: EarthquakeDatasource
+  };
 });

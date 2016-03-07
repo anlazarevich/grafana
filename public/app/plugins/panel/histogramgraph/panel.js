@@ -1,21 +1,19 @@
 define([
   'angular',
-  'app/app',
   'lodash',
   'jquery',
   './graph',
   './histogram'
 ],
-function (angular, app, _, $) {
+function (angular, _, $) {
   'use strict';
 
-  var module = angular.module('grafana.directives', []);
-  app.useModule(module);
+  var module = angular.module('grafana.directives');
 
   module.directive('histogramGraphPanel', function() {
 
     return {
-      templateUrl: 'app/plugins/panel/histogramgraph/panel.html',
+      templateUrl: 'public/app/plugins/panel/histogramgraph/panel.html',
       link: function(scope, elem) {
         var data;
 
@@ -32,14 +30,11 @@ function (angular, app, _, $) {
         });
 
         scope.$on('render', function(event, renderData) {
-          var height = scope.row.height;
-          console.log(height, elem.width());
           if(!renderData) {
             return;
           }
           scope.$broadcast('render-histogram', renderData);
           data = renderData;
-          scope.panelRenderingComplete();
         });
 
       }

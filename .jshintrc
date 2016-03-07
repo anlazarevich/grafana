@@ -4,7 +4,7 @@
   "bitwise":false,
   "curly": true,
   "eqnull": true,
-  "globalstrict": true,
+  "strict": true,
   "devel": true,
   "eqeqeq": true,
   "forin": false,
@@ -12,7 +12,7 @@
   "supernew": true,
   "expr": true,
   "indent": 2,
-  "latedef": true,
+  "latedef": false,
   /* remove warning because sigma constructor is in lowercase*/
   "newcap": false,
   "noarg": true,
@@ -29,6 +29,7 @@
 
   "globals": {
     "System": true,
+    "Promise": true,
     "define": true,
     "require": true,
     "Chromath": false,

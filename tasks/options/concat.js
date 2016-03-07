@@ -4,11 +4,9 @@ module.exports = function(config) {
   return {
     cssDark: {
       src: [
-        '<%= genDir %>/vendor/css/normalize.min.css',
         '<%= genDir %>/vendor/css/timepicker.css',
         '<%= genDir %>/vendor/css/spectrum.css',
-        '<%= genDir %>/css/bootstrap.dark.min.css',
-        '<%= genDir %>/css/bootstrap-responsive.min.css',
+        '<%= genDir %>/css/grafana.dark.css',
         '<%= genDir %>/vendor/css/font-awesome.min.css',
         '<%= genDir %>/vendor/leaflet/dist/leaflet.css'
       ],
@@ -17,11 +15,9 @@ module.exports = function(config) {
 
     cssLight: {
       src: [
-        '<%= genDir %>/vendor/css/normalize.min.css',
         '<%= genDir %>/vendor/css/timepicker.css',
         '<%= genDir %>/vendor/css/spectrum.css',
-        '<%= genDir %>/css/bootstrap.light.min.css',
-        '<%= genDir %>/css/bootstrap-responsive.min.css',
+        '<%= genDir %>/css/grafana.light.css',
         '<%= genDir %>/vendor/css/font-awesome.min.css',
         '<%= genDir %>/vendor/leaflet/dist/leaflet.css'
       ],

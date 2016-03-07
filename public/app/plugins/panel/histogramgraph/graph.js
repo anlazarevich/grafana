@@ -1,23 +1,23 @@
 define([
   'angular',
-  'app/app',
   'lodash',
   'jquery',
   'sigma',
   'sigma.force2Atlas',
   'sigma.dragNodes'
 ],
-function (angular, app, _, $, sigma) {
+function (angular, _, $, sigma) {
   'use strict';
 
-  var module = angular.module('grafana.directives', []);
-  app.useModule(module);
+  var module = angular.module('grafana.directives');
 
   module.directive('tabGraph', function($timeout) {
 
     return {
       link: function(scope, elem) {
-        var data, panel, sigmaInstance;
+        var data, sigmaInstance;
+        var ctrl = scope.ctrl;
+        var panel = ctrl.panel;
 
         scope.$on('render-graph', function(event, renderData) {
           if(!renderData) {
@@ -25,12 +25,11 @@ function (angular, app, _, $, sigma) {
           }
           data = renderData.data;
           render();
-          scope.panelRenderingComplete();
         });
 
         function setElementHeight() {
           try {
-            var height = scope.height || panel.height || scope.row.height;
+            var height = ctrl.height || panel.height || ctrl.row.height;
             if (_.isString(height)) {
               height = parseInt(height.replace('px', ''), 10);
             }
@@ -48,8 +47,6 @@ function (angular, app, _, $, sigma) {
         }
 
         function render() {
-          panel = scope.panel;
-
           setElementHeight();
 
           if(sigmaInstance) {

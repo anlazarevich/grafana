@@ -114,6 +114,6 @@ function () {
       };
   }
 
-  return Neo4jDatasource;
+  return {Neo4jDatasource: Neo4jDatasource};
 
 });

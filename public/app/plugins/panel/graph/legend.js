@@ -8,21 +8,22 @@ define([
 function (angular, _, $) {
   'use strict';
 
-  var module = angular.module('grafana.panels.graph');
+  var module = angular.module('grafana.directives');
 
-  module.directive('graphLegend', function(popoverSrv) {
+  module.directive('graphLegend', function(popoverSrv, $timeout) {
 
     return {
       link: function(scope, elem) {
         var $container = $('<section class="graph-legend"></section>');
         var firstRender = true;
-        var panel = scope.panel;
+        var ctrl = scope.ctrl;
+        var panel = ctrl.panel;
         var data;
         var seriesList;
         var i;
 
         scope.$on('render', function() {
-          data = scope.seriesList;
+          data = ctrl.seriesList;
           if (data) {
             render();
           }
@@ -40,13 +41,24 @@ function (angular, _, $) {
 
           var el = $(e.currentTarget).find('.fa-minus');
           var index = getSeriesIndexForElement(el);
-          var seriesInfo = seriesList[index];
-          var popoverScope = scope.$new();
-          popoverScope.series = seriesInfo;
-          popoverSrv.show({
-            element: el,
-            templateUrl:  'app/plugins/panel/graph/legend.popover.html',
-            scope: popoverScope
+          var series = seriesList[index];
+
+          $timeout(function() {
+            popoverSrv.show({
+              element: el[0],
+              position: 'bottom center',
+              template: '<gf-color-picker></gf-color-picker>',
+              model: {
+                autoClose: true,
+                series: series,
+                toggleAxis: function() {
+                  ctrl.toggleAxis(series);
+                },
+                colorSelected: function(color) {
+                  ctrl.changeSeriesColor(series, color);
+                }
+              },
+            });
           });
         }
 
@@ -54,7 +66,7 @@ function (angular, _, $) {
           var el = $(e.currentTarget);
           var index = getSeriesIndexForElement(el);
           var seriesInfo = seriesList[index];
-          scope.toggleSeries(seriesInfo, e);
+          ctrl.toggleSeries(seriesInfo, e);
         }
 
         function sortLegend(e) {
@@ -148,7 +160,7 @@ function (angular, _, $) {
 
             var html = '<div class="graph-legend-series';
             if (series.yaxis === 2) { html += ' pull-right'; }
-            if (scope.hiddenSeries[series.alias]) { html += ' graph-legend-series-hidden'; }
+            if (ctrl.hiddenSeries[series.alias]) { html += ' graph-legend-series-hidden'; }
             html += '" data-series-index="' + i + '">';
             html += '<div class="graph-legend-icon">';
             html += '<i class="fa fa-minus pointer" style="color:' + series.color + '"></i>';
@@ -174,6 +186,19 @@ function (angular, _, $) {
 
             html += '</div>';
             $container.append($(html));
+          }
+
+          var legendContainerHeight = $container.parent().height();
+          var legendHeight = $container.height();
+
+          if (panel.legend.rightSide && legendHeight >= legendContainerHeight) {
+            $container.toggleClass('graph-legend-fixed-height', true);
+          }
+
+          if (panel.legend.rightSide) {
+            $container.css("height", scope.ctrl.height || scope.ctrl.panel.height || scope.ctrl.row.height);
+          } else {
+            $container.css("height", "");
           }
         }
       }

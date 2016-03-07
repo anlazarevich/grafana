@@ -1,31 +1,34 @@
 define([
   'angular',
-  'app/app',
   'lodash',
   'jquery',
   'jquery.flot',
   'jquery.flot.pie',
 ],
-function (angular, app, _, $) {
+function (angular, _, $) {
   'use strict';
 
-  var module = angular.module('grafana.directives', []);
-  app.useModule(module);
+  var module = angular.module('grafana.directives');
 
   module.directive('piechartPanel', function() {
 
     return {
       link: function(scope, elem) {
-        var data, panel;
+        var data;
+        var ctrl = scope.ctrl;
+        var panel = ctrl.panel;
 
-        scope.$on('render', function() {
+        scope.$on('render', function(event, renderData) {
+          if(!renderData) {
+            return;
+          }
+          data = renderData;
           render();
-          scope.panelRenderingComplete();
         });
 
         function setElementHeight() {
           try {
-            var height = scope.height || panel.height || scope.row.height;
+            var height = ctrl.height || panel.height || ctrl.row.height;
             if (_.isString(height)) {
               height = parseInt(height.replace('px', ''), 10);
             }
@@ -65,7 +68,7 @@ function (angular, app, _, $) {
               pie: {
                 show: true,
                 label: {
-                  show: scope.panel.legend.show && scope.panel.legendType === 'On graph'
+                  show: panel.legend.show && panel.legendType === 'On graph'
                 }
               }
             //},
@@ -80,17 +83,27 @@ function (angular, app, _, $) {
 
           elem.html(plotCanvas);
 
-          $.plot(plotCanvas, scope.data, options);
+//          var dataSet = [
+//                         {label: "Asia", data: 4119630000, color: "#005CDE" },
+//                         { label: "Latin America", data: 590950000, color: "#00A36A" },
+//                         { label: "Africa", data: 1012960000, color: "#7D0096" },
+//                         { label: "Oceania", data: 35100000, color: "#992B00" },
+//                         { label: "Europe", data: 727080000, color: "#DE000F" },
+//                         { label: "North America", data: 344120000, color: "#ED7B00" }
+//                     ];
+          for (var i = 0; i < data.length; i++) {
+            var series = data[i];
+            series.data = 0;
+            for(var index in series.flotpairs){
+              series.data += series.flotpairs[index][1];
+            }
+          }
+
+          $.plot(plotCanvas, data, options);
         }
 
         function render() {
-          if (!scope.data) { return; }
-
-          data = scope.data;
-          panel = scope.panel;
-
           setElementHeight();
-
           addPieChart();
         }
       }

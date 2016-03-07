@@ -8,14 +8,16 @@ define([
 function (angular, app, _, $, L) {
   'use strict';
 
-  var module = angular.module('grafana.directives', []);
-  app.useModule(module);
+  var module = angular.module('grafana.directives');
 
-  module.directive('mapPanel', function() {
+  module.directive('grafanaMap', function() {
 
     return {
+      restrict: 'A',
       link: function(scope, elem) {
-        var data, annotations, panel, map, circles = [];
+        var data, annotations, map, circles = [];
+        var ctrl = scope.ctrl;
+        var panel = ctrl.panel;
 
         scope.$on('render', function(event, renderData) {
           if(!renderData) {
@@ -24,7 +26,6 @@ function (angular, app, _, $, L) {
           data = renderData.data;
           buildAnnotationCache(renderData.annotations);
           render(renderData);
-          scope.panelRenderingComplete();
         });
 
         function buildAnnotationCache(events) {
@@ -40,15 +41,15 @@ function (angular, app, _, $, L) {
 
         function setElementHeight() {
           try {
-            var height = scope.height || panel.height || scope.row.height;
-            if (_.isString(height)) {
-              height = parseInt(height.replace('px', ''), 10);
+            var graphHeight = ctrl.height || panel.height || ctrl.row.height;
+            if (_.isString(graphHeight)) {
+              graphHeight = parseInt(graphHeight.replace('px', ''), 10);
             }
 
-            height -= 5; // padding
-            height -= panel.title ? 24 : 9; // subtract panel title bar
+            graphHeight -= 5; // padding
+            graphHeight -= panel.title ? 24 : 9; // subtract panel title bar
 
-            elem.css('height', height + 'px');
+            elem.css('height', graphHeight + 'px');
 
             return true;
           } catch(e) { // IE throws errors sometimes
@@ -96,10 +97,7 @@ function (angular, app, _, $, L) {
         }
 
         function render() {
-          panel = scope.panel;
-
           setElementHeight();
-
           initMap();
           addCircles();
         }

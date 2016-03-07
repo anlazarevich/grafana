@@ -5,7 +5,7 @@ declare var System: any;
 
 // dummy modules
 declare module 'app/core/config' {
-  var config : any;
+  var config: any;
   export default config;
 }
 
@@ -35,8 +35,16 @@ declare module 'app/core/utils/kbn' {
 }
 
 declare module 'app/core/store' {
-  var store : any;
+  var store: any;
   export default store;
 }
 
+declare module 'tether' {
+  var config: any;
+  export default config;
+}
 
+declare module 'tether-drop' {
+  var config: any;
+  export default config;
+}

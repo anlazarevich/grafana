@@ -8,14 +8,15 @@ define([
 function (angular, app, _, $) {
   'use strict';
 
-  var module = angular.module('grafana.directives', []);
-  app.useModule(module);
+  var module = angular.module('grafana.directives');
 
   module.directive('tabHistogram', function() {
 
     return {
       link: function(scope, elem) {
-        var data, panel, histogram;
+        var data, histogram;
+        var ctrl = scope.ctrl;
+        var panel = ctrl.panel;
 
         scope.$on('render-histogram', function(event, renderData) {
           if(!renderData) {
@@ -23,12 +24,11 @@ function (angular, app, _, $) {
           }
           data = renderData.data;
           render(renderData);
-          scope.panelRenderingComplete();
         });
 
         function setElementHeight() {
           try {
-            var height = scope.height || panel.height || scope.row.height;
+            var height = ctrl.height || panel.height || ctrl.row.height;
             if (_.isString(height)) {
               height = parseInt(height.replace('px', ''), 10);
             }
@@ -46,8 +46,6 @@ function (angular, app, _, $) {
         }
 
         function render() {
-          panel = scope.panel;
-
           setElementHeight();
 
           if(histogram) {
