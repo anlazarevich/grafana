@@ -56,9 +56,10 @@ func NewReverseProxy(ds *m.DataSource, proxyPath string, targetUrl *url.URL) *ht
 			req.Header.Add("Authorization", util.GetBasicAuthHeader(ds.BasicAuthUser, ds.BasicAuthPassword))
 		}
 
+		// disable cookie removal
 		// clear cookie headers
-		req.Header.Del("Cookie")
-		req.Header.Del("Set-Cookie")
+//		req.Header.Del("Cookie")
+//		req.Header.Del("Set-Cookie")
 	}
 
 	return &httputil.ReverseProxy{Director: director}
@@ -95,6 +96,7 @@ func ProxyDataSourceRequest(c *middleware.Context) {
 		proxy := NewReverseProxy(ds, proxyPath, targetUrl)
 		proxy.Transport = dataProxyTransport
 		proxy.ServeHTTP(c.Resp, c.Req.Request)
-		c.Resp.Header().Del("Set-Cookie")
+		// enable set-cookie
+//		c.Resp.Header().Del("Set-Cookie")
 	}
 }

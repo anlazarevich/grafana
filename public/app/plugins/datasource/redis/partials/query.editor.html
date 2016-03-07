@@ -1,0 +1,24 @@
+<query-editor-row ctrl="ctrl">
+        <li class="tight-form-item query-keyword" style="width: 75px">
+                Measure
+        </li>
+        <li>            
+                <select class="tight-form-input input-large"
+                        ng-model="ctrl.target.measure"
+                        ng-change="ctrl.refresh()" 
+                        ng-options="magn for magn in ctrl.measures">
+                                <option value="">-- Select measure --</option>
+                </select>
+        </li>
+        <!-- <li class="tight-form-item query-keyword">
+                Alert Level
+        </li>
+        <li>
+                <select class="tight-form-input input-large"
+                        ng-model="ctrl.target.alert_level"
+                        ng-change="ctrl.refresh()"
+                        ng-options="alert for alert in ctrl.alertList">
+                                <option value="">-- Select Alert --</option>
+                </select>               
+        </li> -->
+</query-editor-row>

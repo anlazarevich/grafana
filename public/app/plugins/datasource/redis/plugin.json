@@ -1,0 +1,7 @@
+{
+  "type": "datasource",
+  "name": "Redis",
+  "id": "redis",
+  "metrics": true,
+  "annotations": true
+}
