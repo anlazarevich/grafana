@@ -12,8 +12,10 @@ export class RedisQueryCtrl extends QueryCtrl {
   /** @ngInject **/
   constructor($scope, $injector) {
     super($scope, $injector);
-
-    this.measures = ['hits', 'ff', 'dnst'];
+    this.datasource.catalog().then(function(res){
+        $scope.tables = Object.keys(res);
+        this.catalog = res;
+    });
   }
 
 }

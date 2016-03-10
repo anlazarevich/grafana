@@ -3,7 +3,8 @@ function () {
   'use strict';
 
   function RedisDatasource(instanceSettings, $q, backendSrv) {
-    var baseUrl = '/api/v1/redis';
+    var baseUrl = '/api/v1/redis', catalog,
+    res_secs = {'minute': 120*60, 'hour': 48*60*60, 'day': Number.POSITIVE_INFINITY};
     this.name = instanceSettings.name;
     this.type = instanceSettings.type;
     this.url = instanceSettings.url + baseUrl;
@@ -15,6 +16,29 @@ function () {
         params: params,
         withCredentials: true
       });
+    };
+
+    this.catalog = function() {
+      if (catalog) {
+        return $q.when(catalog);
+      } else {
+        return this._get('/catalog').then(function(res) {
+          catalog = {};
+          res.data.catalog.forEach(function(item) {
+            var name = item.name[0].substring(item.name[0].indexOf(':')+1) + '.' +item.name[1];
+            var table = catalog[name];
+            if(!table) {
+              table = {};
+              catalog[name] = table;
+            } else {
+              return;
+            }
+            table.dims = item.dims;
+            table.measures = item.measures;
+          });
+          return catalog;
+        });
+      }
     };
 
     this.testDatasource = function() {
@@ -31,26 +55,27 @@ function () {
 
     function convert(target, result) {
       var dp = [];
-      for(var ts in result.data) {
-        var value = result.data[ts];
-        dp.push([value[target.measure], ts*1000]);
+      for(var ts in result) {
+        var value = result[ts];
+        dp.push([value[target.measure?target.measure:'hits'], ts*1000]);
       }
       dp.sort(function(a,b) {
         return a[1] - b[1];
       });
-      return {'target': target.refId, 'datapoints': dp};
+      return {'target': target.alias, 'datapoints': dp};
     }
 
     this.query = function(options) {
       var self = this;
+      var resolution = getResolution(options.range);
       var promises = options.targets.map(function(target) {
-        var params = createParams(options.range, target);
+        var params = self._createParams(options.range, target, resolution);
         if(params) {
           return self._get('/data', params).then(function(result) {
-            return convert(target, result.data);
+            return convert(target, result.data.data);
           });
         } else {
-          return $q.when([]);
+          return $q.when(convert(target, {}));
         }
       });
       return $q.all(promises).then(function(res) {
@@ -58,48 +83,37 @@ function () {
       });
     };
 
-    function createParams(range, target) {
-      if(!target.measure) {
+    function getResolution(range) {
+      var delta = range.to.unix() - range.from.unix();
+      if(delta < res_secs.minute) {
+        return 'minute';
+      } else if(delta < res_secs.hour) {
+        return 'hour';
+      } else {
+        return 'day';
+      }
+    }
+
+    this._createParams = function(range, target, resolution) {
+      if(!target.table) {
         return;
       }
       return {'t0': range.from.unix(),
           't1': range.to.unix(),
-          'dims' : 'minute',
-          'measures': target.measure,
-          'name': 'synth.minute:src:dst.hits:ff:dnst'
-          };
-    }
+          'dims' : resolution,
+          'measures': 'hits',
+          'name': resolution+':'+target.table
+      };
+    };
 
     this.metricFindQuery = function() {
       return $q.when([]);
     };
 
     //TODO to be implemented
-    this.annotationQuery = function(options) {
-      var params = {'starttime': options.range.from.unix(),
-          'endtime': options.range.to.unix(),
-          'minmagnitude' : 6,
-          'format': 'geojson'};
-      return this._get('/query', params).then(function(result) {
-        return makeAnnotations(result, options.annotation);
-      });
+    this.annotationQuery = function() {
+      return $q.when([]);
     };
-
-    function makeAnnotations(result, annotation) {
-      var events = [];
-      result.data.features.forEach(function(row) {
-        var props = row.properties;
-        var data = {
-            annotation: annotation,
-            time: props.time,
-            title: props.title,
-            tags: row.id,
-            text: null
-          };
-        events.push(data);
-      });
-      return events;
-    }
 
   }
 
