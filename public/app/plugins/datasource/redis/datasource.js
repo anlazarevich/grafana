@@ -25,7 +25,7 @@ function () {
         return this._get('/catalog').then(function(res) {
           catalog = {};
           res.data.catalog.forEach(function(item) {
-            var name = item.name[0].substring(item.name[0].indexOf(':')+1) + '.' +item.name[1];
+            var name = item.name.substring(item.name.indexOf(':')+1);
             var table = catalog[name];
             if(!table) {
               table = {};
