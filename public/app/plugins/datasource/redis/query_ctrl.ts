@@ -7,15 +7,19 @@ import {QueryCtrl} from 'app/plugins/sdk';
 export class RedisQueryCtrl extends QueryCtrl {
   static templateUrl = 'partials/query.editor.html';
 
-  measures: string[];
+  reports: any[];
 
   /** @ngInject **/
   constructor($scope, $injector) {
     super($scope, $injector);
-    this.datasource.catalog().then(function(res){
-        $scope.tables = Object.keys(res);
-        this.catalog = res;
-    });
+    this.reports = this.datasource.getReportList();
+    if (this.target.report) {
+        this.$scope.fields = this.datasource.getFields(this.target.report.id);
+    }
   }
 
+  changeReport() {
+      this.$scope.fields = this.datasource.getFields(this.target.report.id);
+      this.refresh();
+  }
 }

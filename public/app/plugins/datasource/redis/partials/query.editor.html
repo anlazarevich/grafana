@@ -7,11 +7,20 @@
   </li>
 
   <li class="tight-form-item query-keyword" style="width: 75px">
-	 Table</li>
+	 Report</li>
   <li><select class="tight-form-input input-large"
-	ng-model="ctrl.target.table" ng-change="ctrl.refresh()"
-	ng-options="table for table in tables">
-		<option value="">-- Select table --</option>
+	ng-model="ctrl.target.report" ng-change="ctrl.changeReport()"
+	ng-options="report.label for report in ctrl.reports track by report.id">
+		<option value="">-- Select report --</option>
+      </select>
+  </li>
+  
+  <li ng-if="fields" class="tight-form-item query-keyword" style="width: 75px">
+	 Field</li>
+  <li ng-if="fields"> <select class="tight-form-input input-large"
+	ng-model="ctrl.target.field" ng-change="ctrl.refresh()"
+	ng-options="field.name for field in fields track by field.id">
+		<option value="">-- Select field --</option>
       </select>
   </li>
 </query-editor-row>

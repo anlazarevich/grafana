@@ -35,12 +35,15 @@ class PieChartCtrl extends MetricsPanelCtrl {
 
   unitFormats: any;
   series: any = [];
+  colors: any = [];
 
   /** @ngInject */
   constructor($scope, $injector, private annotationsSrv) {
     super($scope, $injector);
     _.defaults(this.panel, panelDefaults);
     _.defaults(this.panel.legend, panelDefaults.legend);
+
+    this.colors = $scope.$root.colors;
   }
 
   initEditMode() {
@@ -73,9 +76,13 @@ class PieChartCtrl extends MetricsPanelCtrl {
   }
 
   seriesHandler(seriesData, index) {
+    var alias = seriesData.target;
+    var colorIndex = index % this.colors.length;
+    var color = this.colors[colorIndex];
     var series = new TimeSeries({
       datapoints: seriesData.datapoints,
-      alias: seriesData.target
+      alias: seriesData.target,
+      color: color
     });
     series.flotpairs = series.getFlotPairs(this.panel.nullPointMode);
     return series;

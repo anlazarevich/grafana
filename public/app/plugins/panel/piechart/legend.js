@@ -26,9 +26,9 @@ function (angular, _, kbn, $) {
         scope.$on('render', function() {
           data = ctrl.series;
           if (data) {
-            for(var i in data) {
-              data[i].color = scope.data[i].color;
-            }
+//            for(var i in data) {
+//              data[i].color = scope.data[i].color;
+//            }
             render();
           }
         });
