@@ -105,26 +105,33 @@ function () {
       dp.sort(function(a,b) {
         return a[1] - b[1];
       });
-      return {'target': target.field.name, 'datapoints': dp};
+      return {'target': target.field?target.field.name:'unamed field', 'datapoints': dp};
     }
 
     this.query = function(options) {
       var self = this;
       var resolution = getResolution(options.range);
-      var promises = options.targets.map(function(target) {
-        var params = self._createParams(options.range, target, resolution);
-        if(params) {
-          return self._get('/data', params).then(function(result) {
-            return transform(target, result.data.data);
+      if(!options.targets || options.targets.length === 0) {
+        return emptyRs();
+      }
+      var target = options.targets[0];
+      var params = self._createParams(options.range, target, resolution);
+      if(params) {
+        return self._get('/data', params).then(function(response) {
+          var result = response.data.data;
+          var rs = options.targets.map(function(target) {
+            return transform(target, result);
           });
-        } else {
-          return $q.when(transform({field:{name:'no data'}}, {}));
-        }
-      });
-      return $q.all(promises).then(function(res) {
-        return {data: res};
-      });
+          return {data: rs};
+        });
+      } else {
+        return emptyRs();
+      }
     };
+
+    function emptyRs() {
+      return $q.when(transform({}, {}));
+    }
 
     function getResolution(range) {
       var delta = range.to.unix() - range.from.unix();
