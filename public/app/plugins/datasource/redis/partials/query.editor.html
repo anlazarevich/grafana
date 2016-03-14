@@ -1,26 +1,19 @@
-<query-editor-row ctrl="ctrl">
 
-  <li class="tight-form-item query-keyword">Alias</li>
-  <li><input type="text" class="tight-form-input"
-	style="width: 200px;" ng-model="ctrl.target.alias" spellcheck='false'
-	placeholder="alias patterns (empty = auto)" ng-blur="ctrl.refresh()">
-  </li>
-
-  <li class="tight-form-item query-keyword" style="width: 75px">
-	 Report</li>
-  <li><select class="tight-form-input input-large"
+<div ng-if="$parent.$first" class="gf-form">
+	<span class="gf-form-label width-7">Report</span>	
+	<select class="gf-form-input gf-size-auto"
 	ng-model="ctrl.target.report" ng-change="ctrl.changeReport()"
 	ng-options="report.label for report in ctrl.reports track by report.id">
 		<option value="">-- Select report --</option>
       </select>
-  </li>
-  
-  <li ng-if="fields" class="tight-form-item query-keyword" style="width: 75px">
+</div>
+	  
+<query-editor-row ng-if="ctrl.panel.report" ctrl="ctrl">
+  <li class="tight-form-item query-keyword" style="width: 75px">
 	 Field</li>
-  <li ng-if="fields"> <select class="tight-form-input input-large"
+  <li> <select class="tight-form-input input-large"
 	ng-model="ctrl.target.field" ng-change="ctrl.refresh()"
-	ng-options="field.name for field in fields track by field.id">
-		<option value="">-- Select field --</option>
+	ng-options="field.name for field in ctrl.fields track by field.id">		
       </select>
   </li>
 </query-editor-row>

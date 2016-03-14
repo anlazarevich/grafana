@@ -105,7 +105,7 @@ function () {
       dp.sort(function(a,b) {
         return a[1] - b[1];
       });
-      return {'target': target.alias, 'datapoints': dp};
+      return {'target': target.field.name, 'datapoints': dp};
     }
 
     this.query = function(options) {
@@ -118,7 +118,7 @@ function () {
             return transform(target, result.data.data);
           });
         } else {
-          return $q.when(transform(target, {}));
+          return $q.when(transform({field:{name:'no data'}}, {}));
         }
       });
       return $q.all(promises).then(function(res) {
