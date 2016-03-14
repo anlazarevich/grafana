@@ -17,16 +17,40 @@ function () {
                       'filter': 'fieldFilter',
                       'table':':tag:confidence:severity:continent:country.hits'},
                     'watchlist_vs_total_traffic':{ 'name':'Watch List vs Total Traffic',
-                        'fields':[{'id':'watchlist_traffic','name':'Watchlist Traffic'},
-                                  {'id':'total_traffic','name':'Total Traffic'}],
+                      'fields':[{'id':'watchlist_traffic','name':'Watchlist Traffic'},
+                                {'id':'total_traffic','name':'Total Traffic'}],
                         'dim':'country',
                         'filter': 'watchDestFilter',
-                        'table':':tag:confidence:severity:continent:country.hits'}
+                        'table':':tag:confidence:severity:continent:country.hits'},
+                     'top_security_dest':{ 'name':'Top Security Destinations by type',
+                          'fields':[{'id':'DNST@IB','name':'DNST'},
+                                    {'id':'Bot@IID','name':'Bot'},
+                                    {'id':'ExploitKit@IID','name':'Exploit Kit'},
+                                    {'id':'IllegalContent@IID','name':'Illegal Content'},
+                                    {'id':'MaliciousNameserver@IID','name':'Malicious Nameserver'},
+                                    {'id':'MalwareC2@IID','name':'Malware C2'},
+                                    {'id':'MalwareC2DGA@IID','name':'Malware C2 DGA'},
+                                    {'id':'MalwareDownload@IID','name':'Malware Download'},
+                                    {'id':'Phishing@IID','name':'Phishing'},
+                                    {'id': 'Scam@IID', 'name': 'Scam'},
+                                    {'id':'UncategorizedThreat','name':'Uncategorized Threat'},
+                                    {'id':'UnwantedContent@IID','name':'Unwanted Content'},
+                                    {'id':'APT@IID','name':'APT'}],
+                          'dim':'tag',
+                          'filter': 'fieldFilter',
+                          'table':':tag:confidence:severity:continent:country.hits'},
+                       'known_vs_bad_traffic':{ 'name':'Known vs Bad Traffic',
+                            'fields':[{'id':'bad_traffic','name':'Known Bad Traffic'},
+                                      {'id':'total_traffic','name':'Total Traffic'}],
+                              'dim':'tag',
+                              'filter': 'badTrafficFilter',
+                              'table':':tag:confidence:severity:continent:country.hits'},
     };
 
     this.reportList;
 
-    var filters = {fieldFilter: fieldFilter, watchDestFilter: watchDestFilter};
+    var filters = {fieldFilter: fieldFilter, watchDestFilter: watchDestFilter,
+                   badTrafficFilter: badTrafficFilter};
 
     function fieldFilter(dim, target) {
       return dim === target.field.id;
@@ -37,6 +61,19 @@ function () {
         return true;
       }
       var fields = reports.geo_dest_watch_list.fields;
+      for(var i in fields) {
+        if(dim === fields[i].id) {
+          return true;
+        }
+      }
+      return false;
+    }
+
+    function badTrafficFilter(dim, target) {
+      if(target.field.id === 'total_traffic') {
+        return true;
+      }
+      var fields = reports.top_security_dest.fields;
       for(var i in fields) {
         if(dim === fields[i].id) {
           return true;
