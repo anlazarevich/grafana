@@ -10,6 +10,7 @@ var panelDefaults = {
   datasource: null,
   // sets client side (flot) or native graphite png renderer (png)
   renderer: 'flot',
+  enableThreatControl: false,
   // metric queries
   targets: [{}]
 };

@@ -3,9 +3,10 @@ define([
   'app/app',
   'lodash',
   'jquery',
-  'leaflet'
+  'leaflet',
+  './threat_control'
 ],
-function (angular, app, _, $, L) {
+function (angular, app, _, $, L, ThreatControl) {
   'use strict';
 
   var module = angular.module('grafana.directives');
@@ -66,6 +67,9 @@ function (angular, app, _, $, L) {
           L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
           }).addTo(map);
+          if(panel.enableThreatControl) {
+            map.addControl(new ThreatControl());
+          }
         }
 
         function addCircles() {
