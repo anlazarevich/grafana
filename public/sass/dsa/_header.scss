@@ -1,0 +1,92 @@
+$blue:#0073E0;
+$link-color:$blue;
+$lbluegray: #4689C2;
+
+@media (min-width: 768px) {
+
+	.navbar-header {
+    	margin-right: 0;
+    	margin-left: 0;
+    	float: left;
+	}
+	
+	.navbar-brand {
+    	margin-left: -15px;
+	}
+	
+}
+
+.navbar-brand {
+    color: #777;
+    width: 200px;
+    height: 70px;
+    background-color: #202A37 !important;
+    float: left;
+    padding: 15px 15px;
+    font-size: 18px;
+    line-height: 20px;    
+}
+
+.nav > li {
+	padding: 0;
+    height: 70px;
+    border-color: #DDDDDD;
+    border-style: solid;
+    border-width: 0px;
+}
+
+.nav.dashnav-action-icons > li a {
+    color: #0073E0;
+    text-decoration: none;
+    padding-top: 27px;
+    width: 50px;
+    text-align: center;
+    //padding-bottom: 27px;
+    font-size: 16px;
+}
+
+ul.gf-timepicker-nav > li {
+	padding-top: 10px;
+}
+
+.navbar .nav > li > a {
+	color: $link-color;
+}
+
+.logo {
+    background-image: url(/public/img/logo_color_white.png);
+    background-repeat: no-repeat;
+    background-position: center;
+    width: 170px;
+    height: 43px;
+}
+
+.nav > li#user-dropdown a, .nav > li#alerts a {
+    color: $link-color;
+}
+
+#user-dropdown {
+    border-left-width: 1px;
+    font-size: 16px;
+
+    a {
+    	padding: 14px 15px 14px 20px;
+       	min-width: 180px;
+       	text-align: left;
+    }
+
+    span {
+        display: block;
+        font-size: 18px;
+        color: $link-color;
+        position: relative;
+        bottom: 13px;
+    }
+
+    .user-icon {
+        color: $lbluegray;
+        font-size: 30px;
+        margin-right: 10px;
+        top: 4px;
+     }
+}

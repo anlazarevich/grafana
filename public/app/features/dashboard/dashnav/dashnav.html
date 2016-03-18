@@ -70,13 +70,20 @@
 
 <ul class="nav pull-right">
 	<li ng-show="dashboard.meta.fullscreen" class="dashnav-back-to-dashboard">
-		<a ng-click="exitFullscreen()">
+		<a ng-click="exitFullscreen()" style="padding-top: 25px;'">
 			Back to dashboard
 		</a>
 	</li>
 	<li ng-if="dashboard">
 		<gf-time-picker dashboard="dashboard"></gf-time-picker>
 	</li>
+	<li id="user-dropdown" role="presentation" class="pull-right dropdown">
+    	<a class="dropdown-toggle text-left" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
+    		<span class="flaticon stroke logout-1 user-icon pull-left"></span> Fernando<br> Diaz <span class="flaticon stroke down-2 pull-right"></span>
+    	</a>
+    	<ul class="dropdown-menu">
+    	</ul>
+  	</li>
 </ul>
 
 </navbar>
