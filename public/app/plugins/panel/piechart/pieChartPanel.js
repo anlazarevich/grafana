@@ -10,7 +10,7 @@ function (angular, _, $) {
 
   var module = angular.module('grafana.directives');
 
-  module.directive('piechartPanel', function() {
+  module.directive('piechartPanel', function($timeout) {
 
     return {
       link: function(scope, elem) {
@@ -49,6 +49,12 @@ function (angular, _, $) {
           var height = elem.height();
 
           var size = Math.min(width, height);
+
+					// seems rendering process is not completed yet wait...
+          if(size === 0) {
+            $timeout(addPieChart, 1000);
+            return;
+          }
 
           var plotCanvas = $('<div></div>');
           var plotCss = {};
