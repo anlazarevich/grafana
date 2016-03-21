@@ -99,10 +99,7 @@ function (angular, _, $) {
 //                     ];
           for (var i = 0; i < data.length; i++) {
             var series = data[i];
-            series.data = 0;
-            for(var index in series.flotpairs){
-              series.data += series.flotpairs[index][1];
-            }
+            series.data = series.stats.total;
           }
 
           $.plot(plotCanvas, data, options);
