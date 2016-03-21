@@ -2,10 +2,11 @@ define([
   'angular',
   'lodash',
   'jquery',
+  './panel.html!text',
   './graph',
   './histogram'
 ],
-function (angular, _, $) {
+function (angular, _, $, template) {
   'use strict';
 
   var module = angular.module('grafana.directives');
@@ -13,7 +14,7 @@ function (angular, _, $) {
   module.directive('histogramGraphPanel', function() {
 
     return {
-      templateUrl: 'public/app/plugins/panel/histogramgraph/panel.html',
+      template: template,
       link: function(scope, elem) {
         var data;
 
