@@ -33,7 +33,8 @@ function () {
       var dp = [];
       result.data.features.forEach(function(row) {
         var props = row.properties;
-        dp.push([props.mag, props.time, row.geometry, row.id]);
+        var coords = [row.geometry.coordinates[1], row.geometry.coordinates[0]];
+        dp.push([props.mag, props.time, coords, row.id]);
       });
       dp.sort(function(a,b) {
         return a[1] - b[1];

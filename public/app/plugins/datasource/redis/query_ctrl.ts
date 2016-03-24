@@ -27,14 +27,27 @@ export class RedisQueryCtrl extends QueryCtrl {
       this.fields = this.datasource.getFields(this.target.report.id);
       this.panel.report = this.target.report;
       this.panel.targets = [];
-      var self = this;
-      this.fields.forEach(function(field){
-          var target = {};
+      var target;
+      if (this.fields) {
+        var self = this;
+        this.fields.forEach(function(field){
+          target = {};
           target['refId'] = self.getNextQueryLetter();
           target['field'] = field;
           target['report'] = self.target.report;
           self.panel.targets.push(target);
-      });
+        });
+      } else {
+        target = {};
+        target['report'] = this.target.report;
+        target['hidden'] = true;
+        this.panel.targets.push(target);
+      }
       this.refresh();
   }
+
+  isHidden() {
+      return this.panel.report && !this.target.hidden;
+  }
+
 }

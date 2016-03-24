@@ -84,20 +84,37 @@ function (angular, app, _, $, L, ThreatControl) {
           if(data.length === 0 || data[0].datapoints.length === 0  || data[0].datapoints[0].length < 3) {
             return;
           }
+          var mapData = normalize(data);
+          for(var id in mapData) {
+            var val = mapData[id];
+            var coords = val.coords;
+            // coords have the format as an array[latitude,longitude]
+            var circle = L.circle([coords[0], coords[1]], val.measure*10000, {
+              color: 'red',
+              fillColor: '#f03',
+              fillOpacity: 0.5
+            }).addTo(map);
+            if(annotations) {
+              circle.bindPopup(annotations[id]);
+            }
+            circles.push(circle);
+          }
+        }
+
+        function normalize(data) {
+          var map = {};
           data.forEach(function(row) {
             row.datapoints.forEach(function(dp) {
-              var coords = dp[2].coordinates;
-              var circle = L.circle([coords[1], coords[0]], dp[0]*10000, {
-                color: 'red',
-                fillColor: '#f03',
-                fillOpacity: 0.5
-              }).addTo(map);
-              if(annotations) {
-                circle.bindPopup(annotations[dp[3]]);
+              var id = dp[3];
+              var val = map[id];
+              if(!val) {
+                map[id] = {measure: dp[0], coords: dp[2]};
+              } else {
+                map[id].measure += dp[0];
               }
-              circles.push(circle);
             });
           });
+          return map;
         }
 
         function render() {

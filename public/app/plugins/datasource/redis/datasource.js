@@ -1,6 +1,22 @@
-define([],
-function () {
+define([
+  './country_latlon.csv!text',
+],
+function (iso2geo) {
   'use strict';
+
+  var geoMap = {};
+
+  function createGeoMap() {
+    var lines = iso2geo.split('\n');
+    for(var i=1; i < lines.length; i++) {
+      var parts = lines[i].split(',');
+      if(parts.length === 3) {
+        geoMap[parts[0]] = [parseFloat(parts[1]), parseFloat(parts[2])];
+      }
+    }
+  }
+
+  createGeoMap();
 
   function RedisDatasource(instanceSettings, $q, backendSrv) {
     var baseUrl = '/api/v1/redis',
@@ -45,6 +61,9 @@ function () {
                               'dim':'tag',
                               'filter': 'badTrafficFilter',
                               'table':':tag:confidence:severity:continent:country.hits'},
+                       'geo_map': { 'name':'Traffic Distribution on the world map',
+                         'dim':'country',
+                         'table':':tag:confidence:severity:continent:country.hits'}
     };
 
     this.reportList;
@@ -125,18 +144,35 @@ function () {
 
     function transform(target, result) {
       var dp = [];
+      var value, measure;
       for(var ts in result) {
         var item = result[ts];
         if(target.field) {
+          measure = 0;
           var filterFn = filters[reports[target.report.id].filter];
           for(var dim in item) {
             if(filterFn(dim, target)) {
-              var value = item[dim];
-              dp.push([value[target.measure?target.measure:'hits'], ts*1000]);
+              value = item[dim];
+              measure += value[target.measure?target.measure:'hits'];
             }
           }
+          dp.push([measure, ts*1000]);
         } else {
-          dp.push([item[target.measure?target.measure:'hits'], ts*1000]);
+          var dimParam = reports[target.report.id].dim;
+          switch(dimParam) {
+          case 'country':
+            for(var iso2Code in item) {
+              value = item[iso2Code];
+              var coordinates = geoMap[iso2Code];
+              if(!coordinates) {
+                continue;
+              }
+              dp.push([value[target.measure?target.measure:'hits'], ts*1000, coordinates, iso2Code]);
+            }
+            break;
+          default:
+            dp.push([item[target.measure?target.measure:'hits'], ts*1000]);
+          }
         }
       }
       dp.sort(function(a,b) {
@@ -187,7 +223,7 @@ function () {
       }
       var report = reports[target.report.id];
       var dims = [resolution];
-      if(target.field) {
+      if(report.dim) {
         dims.push(report.dim);
       }
       return {'t0': range.from.unix(),
