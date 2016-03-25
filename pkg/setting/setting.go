@@ -40,6 +40,7 @@ var (
 	Env       string = DEV
 	AppUrl    string
 	AppSubUrl string
+	XaasUrl   string
 
 	// build
 	BuildVersion string
@@ -402,6 +403,7 @@ func NewConfigContext(args *CommandLineArgs) error {
 
 	server := Cfg.Section("server")
 	AppUrl, AppSubUrl = parseAppUrlAndSubUrl(server)
+	XaasUrl = Cfg.Section("paths").Key("xaas_url").String()
 
 	Protocol = HTTP
 	if server.Key("protocol").MustString("http") == "https" {

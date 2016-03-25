@@ -136,6 +136,7 @@ func getFrontendSettingsMap(c *middleware.Context) (map[string]interface{}, erro
 		"appSubUrl":         setting.AppSubUrl,
 		"allowOrgCreate":    (setting.AllowUserOrgCreate && c.IsSignedIn) || c.IsGrafanaAdmin,
 		"authProxyEnabled":  setting.AuthProxyEnabled,
+		"xaasUrl":           setting.XaasUrl,
 		"buildInfo": map[string]interface{}{
 			"version":    setting.BuildVersion,
 			"commit":     setting.BuildCommit,

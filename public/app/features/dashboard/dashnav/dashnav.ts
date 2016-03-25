@@ -3,6 +3,8 @@
 import _ from 'lodash';
 import moment from 'moment';
 import angular from 'angular';
+import config from 'app/core/config';
+import $ from 'jquery';
 
 export class DashNavCtrl {
 
@@ -16,6 +18,7 @@ export class DashNavCtrl {
       $scope.onAppEvent('quick-snapshot', $scope.quickSnapshot);
 
       $scope.showSettingsMenu = $scope.dashboardMeta.canEdit || $scope.contextSrv.isEditor;
+      $scope.xaasUrl = config.xaasUrl;
 
       if ($scope.dashboardMeta.isSnapshot) {
         $scope.showSettingsMenu = false;
@@ -197,6 +200,14 @@ export class DashNavCtrl {
 
     $scope.stopPlaylist = function() {
       playlistSrv.stop(1);
+    };
+
+    $scope.logout = function() {
+        // delete session doesn't work on rails CSRF validation is failed
+        $.ajax($scope.xaasUrl + 'users/sign_out', {method: "DELETE"}).
+        done(function() {
+            window.location.assign($scope.xaasUrl);
+        });
     };
 
     $scope.init();

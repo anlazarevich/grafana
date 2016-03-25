@@ -52,7 +52,7 @@
 		</ul>
 	</li>
 	<li>
-		<a href="http://localhost:3000" bs-tooltip="'Back to XaaS portal'" data-placement="bottom"><i class="fa fa-sitemap"></i></a>
+		<a href="{{xaasUrl}}" bs-tooltip="'Back to XaaS portal'" data-placement="bottom"><i class="fa fa-sitemap"></i></a>
 	</li>
 </ul>
 
@@ -82,6 +82,11 @@
     		<span class="flaticon stroke logout-1 user-icon pull-left"></span> {{firstName}}<br> {{lastName}} <span class="flaticon stroke down-2 pull-right"></span>
     	</a>
     	<ul class="dropdown-menu">
+    		<li>
+    			<a id="signout" role="menuitem" tabindex="-1" ng-click="logout()" target="_self">
+    				<span class="glyphicons glyphicons-log-out"></span> Sign Out
+    		    </a>
+    		</li>
     	</ul>
   	</li>
 </ul>
