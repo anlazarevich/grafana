@@ -18,6 +18,8 @@ function (iso2geo) {
 
   createGeoMap();
 
+  var statDbTable = ':tag:confidence:severity:continent:country.hits';
+
   function RedisDatasource(instanceSettings, $q, backendSrv) {
     var baseUrl = '/api/v1/redis',
     res_secs = {'minute': 120*60, 'hour': 48*60*60, 'day': Number.POSITIVE_INFINITY};
@@ -31,13 +33,13 @@ function (iso2geo) {
                                 {'id':'SI','name':'Slovenia'}],
                       'dim':'country',
                       'filter': 'fieldFilter',
-                      'table':':tag:confidence:severity:continent:country.hits'},
+                      'table': statDbTable},
                     'watchlist_vs_total_traffic':{ 'name':'Watch List vs Total Traffic',
                       'fields':[{'id':'watchlist_traffic','name':'Watchlist Traffic'},
                                 {'id':'total_traffic','name':'Total Traffic'}],
                         'dim':'country',
                         'filter': 'watchDestFilter',
-                        'table':':tag:confidence:severity:continent:country.hits'},
+                        'table':statDbTable},
                      'top_security_dest':{ 'name':'Top Security Destinations by type',
                           'fields':[{'id':'DNST@IB','name':'DNST'},
                                     {'id':'Bot@IID','name':'Bot'},
@@ -54,16 +56,16 @@ function (iso2geo) {
                                     {'id':'APT@IID','name':'APT'}],
                           'dim':'tag',
                           'filter': 'fieldFilter',
-                          'table':':tag:confidence:severity:continent:country.hits'},
+                          'table':statDbTable},
                        'known_vs_bad_traffic':{ 'name':'Known vs Bad Traffic',
                             'fields':[{'id':'bad_traffic','name':'Known Bad Traffic'},
                                       {'id':'total_traffic','name':'Total Traffic'}],
                               'dim':'tag',
                               'filter': 'badTrafficFilter',
-                              'table':':tag:confidence:severity:continent:country.hits'},
+                              'table':statDbTable},
                        'geo_map': { 'name':'Traffic Distribution on the world map',
                          'dim':'country',
-                         'table':':tag:confidence:severity:continent:country.hits'}
+                         'table':statDbTable}
     };
 
     this.reportList;
@@ -238,10 +240,41 @@ function (iso2geo) {
       return $q.when([]);
     };
 
-    //TODO to be implemented
-    this.annotationQuery = function() {
-      return $q.when([]);
+    this.annotationQuery = function(options) {
+      var range = options.range;
+      var resolution = getResolution(range);
+      var dims = [resolution, 'country', 'tag'];
+      var params  = {'t0': range.from.unix(),
+        't1': range.to.unix(),
+        'dims' : dims.toString(),
+        'measures': 'hits',
+        'name': resolution+statDbTable
+      };
+      return this._get('/data', params).then(function(result) {
+        return makeAnnotations(result, options.annotation);
+      });
     };
+
+    function makeAnnotations(result, annotation) {
+      var events = [];
+      for(var ts in result) {
+        var tag = '', title = '';
+        var data = {
+            annotation: annotation,
+            time: ts * 1000,
+            tag : tag,
+            title: title};
+        for(var iso2 in result[ts]) {
+          title += iso2;
+          var item = result[ts][iso2];
+          for(var malTag in item) {
+            tag += malTag;
+          }
+        }
+        events.push(data);
+      }
+      return events;
+    }
 
   }
 
