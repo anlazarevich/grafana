@@ -27,81 +27,56 @@ function (iso2geo) {
     this.type = instanceSettings.type;
     this.url = instanceSettings.url + baseUrl;
 
+    var watchListFields = [{'id':'CH','name':'China'}, {'id':'RU','name':'Russia'},
+                           {'id':'SY','name':'Syria'}, {'id':'IR','name':'Iran'},
+                           {'id':'SI','name':'Slovenia'}],
+        tagFields = [{'id':'DNST@IB','name':'DNST'},
+                     {'id':'Bot@IID','name':'Bot'},
+                     {'id':'ExploitKit@IID','name':'Exploit Kit'},
+                     {'id':'IllegalContent@IID','name':'Illegal Content'},
+                     {'id':'MaliciousNameserver@IID','name':'Malicious Nameserver'},
+                     {'id':'MalwareC2@IID','name':'Malware C2'},
+                     {'id':'MalwareC2DGA@IID','name':'Malware C2 DGA'},
+                     {'id':'MalwareDownload@IID','name':'Malware Download'},
+                     {'id':'Phishing@IID','name':'Phishing'},
+                     {'id':'Scam@IID', 'name': 'Scam'},
+                     {'id':'UncategorizedThreat','name':'Uncategorized Threat'},
+                     {'id':'UnwantedContent@IID','name':'Unwanted Content'},
+                     {'id':'APT@IID','name':'APT'}];
+
     var reports  = {'geo_dest_watch_list':{ 'name':'Geographic Destination Watch List',
-                      'fields':[{'id':'CH','name':'China'}, {'id':'RU','name':'Russia'},
-                                {'id':'SY','name':'Syria'}, {'id':'IR','name':'Iran'},
-                                {'id':'SI','name':'Slovenia'}],
-                      'dim':'country',
-                      'filter': 'fieldFilter',
+                      'fields': watchListFields,
+                      'dim':['country','tag'],
+                      'transform': 'transform2GeoWatchList',
                       'table': statDbTable},
                     'watchlist_vs_total_traffic':{ 'name':'Watch List vs Total Traffic',
                       'fields':[{'id':'watchlist_traffic','name':'Watchlist Traffic'},
                                 {'id':'total_traffic','name':'Total Traffic'}],
-                        'dim':'country',
-                        'filter': 'watchDestFilter',
+                        'dim':['country','tag'],
+                        'transform': 'transform2WatchTotalTraffic',
                         'table':statDbTable},
                      'top_security_dest':{ 'name':'Top Security Destinations by type',
-                          'fields':[{'id':'DNST@IB','name':'DNST'},
-                                    {'id':'Bot@IID','name':'Bot'},
-                                    {'id':'ExploitKit@IID','name':'Exploit Kit'},
-                                    {'id':'IllegalContent@IID','name':'Illegal Content'},
-                                    {'id':'MaliciousNameserver@IID','name':'Malicious Nameserver'},
-                                    {'id':'MalwareC2@IID','name':'Malware C2'},
-                                    {'id':'MalwareC2DGA@IID','name':'Malware C2 DGA'},
-                                    {'id':'MalwareDownload@IID','name':'Malware Download'},
-                                    {'id':'Phishing@IID','name':'Phishing'},
-                                    {'id': 'Scam@IID', 'name': 'Scam'},
-                                    {'id':'UncategorizedThreat','name':'Uncategorized Threat'},
-                                    {'id':'UnwantedContent@IID','name':'Unwanted Content'},
-                                    {'id':'APT@IID','name':'APT'}],
-                          'dim':'tag',
-                          'filter': 'fieldFilter',
+                          'fields': tagFields,
+                          'dim': ['tag'],
+                          'transform': 'transform2TopSecurity',
                           'table':statDbTable},
-                       'known_vs_bad_traffic':{ 'name':'Known vs Bad Traffic',
+                       'known_vs_bad_traffic':{ 'name':'Known Bad vs Total Traffic',
                             'fields':[{'id':'bad_traffic','name':'Known Bad Traffic'},
                                       {'id':'total_traffic','name':'Total Traffic'}],
-                              'dim':'tag',
-                              'filter': 'badTrafficFilter',
+                              'dim':['tag'],
+                              'transform': 'transform2KnowBadTraffic',
                               'table':statDbTable},
                        'geo_map': { 'name':'Traffic Distribution on the world map',
-                         'dim':'country',
+                         'dim':['country','tag'],
+                         'transform': 'transform2GeoMap',
                          'table':statDbTable}
     };
 
     this.reportList;
 
-    var filters = {fieldFilter: fieldFilter, watchDestFilter: watchDestFilter,
-                   badTrafficFilter: badTrafficFilter};
-
-    function fieldFilter(dim, target) {
-      return dim === target.field.id;
-    }
-
-    function watchDestFilter(dim, target) {
-      if(target.field.id === 'total_traffic') {
-        return true;
-      }
-      var fields = reports.geo_dest_watch_list.fields;
-      for(var i in fields) {
-        if(dim === fields[i].id) {
-          return true;
-        }
-      }
-      return false;
-    }
-
-    function badTrafficFilter(dim, target) {
-      if(target.field.id === 'total_traffic') {
-        return true;
-      }
-      var fields = reports.top_security_dest.fields;
-      for(var i in fields) {
-        if(dim === fields[i].id) {
-          return true;
-        }
-      }
-      return false;
-    }
+    var transformers = {transform2GeoWatchList: transform2GeoWatchList, transform2WatchTotalTraffic: transform2WatchTotalTraffic,
+        transform2TopSecurity: transform2TopSecurity, transform2KnowBadTraffic: transform2KnowBadTraffic,
+        transform2GeoMap: transform2GeoMap};
 
     this.getReportList = function() {
       if(this.reportList) {
@@ -144,43 +119,148 @@ function (iso2geo) {
       });
     };
 
-    function transform(target, result) {
-      var dp = [];
-      var value, measure;
-      for(var ts in result) {
-        var item = result[ts];
-        if(target.field) {
-          measure = 0;
-          var filterFn = filters[reports[target.report.id].filter];
-          for(var dim in item) {
-            if(filterFn(dim, target)) {
-              value = item[dim];
-              measure += value[target.measure?target.measure:'hits'];
+    function transform2GeoWatchList(ts, item, target) {
+      var measure = 0;
+      for(var iso2Code in item) {
+        var iso2CodeValue = item[iso2Code];
+        for(var tag in iso2CodeValue) {
+          var tagValue = iso2CodeValue[tag];
+          if(tag != null && tag !== '' && iso2Code === target.field.id) {
+            measure += getMeasure(tagValue, target);
+          }
+        }
+      }
+      if(measure === 0) {
+        return null;
+      } else {
+        return [measure, ts];
+      }
+    }
+
+    function transform2WatchTotalTraffic(ts, item, target) {
+      var measure = 0;
+      for(var iso2Code in item) {
+        var iso2CodeValue = item[iso2Code];
+        for(var tag in iso2CodeValue) {
+          var tagValue = iso2CodeValue[tag];
+          if(tag != null && tag !== '') {
+            if(target.field.id === 'total_traffic') {
+              measure += getMeasure(tagValue, target);
+            } else if(watchListFilter(iso2Code)) {
+              measure += getMeasure(tagValue, target);
             }
           }
-          dp.push([measure, ts*1000]);
+        }
+      }
+      if(measure === 0) {
+        return null;
+      } else {
+        return [measure, ts];
+      }
+    }
+
+    function transform2TopSecurity(ts,item,target) {
+      var measure = 0;
+      for(var tag in item) {
+        var tagValue = item[tag];
+        if(target.field.id === tag) {
+          measure += getMeasure(tagValue, target);
+        }
+      }
+      if(measure === 0) {
+        return null;
+      } else {
+        return [measure, ts];
+      }
+    }
+
+    function transform2KnowBadTraffic(ts, item, target) {
+      var measure = 0;
+      for(var tag in item) {
+        var tagValue = item[tag];
+        if(target.field.id === 'total_traffic') {
+          if(tag == null && tag === '') {
+            measure += getMeasure(tagValue, target);
+          }
         } else {
-          var dimParam = reports[target.report.id].dim;
-          switch(dimParam) {
-          case 'country':
-            for(var iso2Code in item) {
-              value = item[iso2Code];
-              var coordinates = geoMap[iso2Code];
-              if(!coordinates) {
-                continue;
-              }
-              dp.push([value[target.measure?target.measure:'hits'], ts*1000, coordinates, iso2Code]);
+          if(tag != null && tag !== '') {
+            measure += getMeasure(tagValue, target);
+          }
+        }
+      }
+      if(measure === 0) {
+        return null;
+      } else {
+        return [measure, ts];
+      }
+    }
+
+    function transform2GeoMap(ts, item, target) {
+      var res = [];
+      for(var iso2Code in item) {
+        var iso2CodeValue = item[iso2Code];
+        for(var tag in iso2CodeValue) {
+          var tagValue = iso2CodeValue[tag];
+          if(tag != null && tag !== '') {
+            var coordinates = geoMap[iso2Code];
+            if(!coordinates) {
+              continue;
             }
-            break;
-          default:
-            dp.push([item[target.measure?target.measure:'hits'], ts*1000]);
+            res.push([getMeasure(tagValue, target), ts, coordinates, iso2Code]);
+          }
+        }
+      }
+      if(res.length === 0) {
+        return null;
+      } else {
+        return res;
+      }
+    }
+
+    function watchListFilter(iso2Code) {
+      for(var i in watchListFields) {
+        var field = watchListFields[i];
+        if(field.id === iso2Code) {
+          return true;
+        }
+      }
+      return false;
+    }
+
+    function getMeasure(value, target) {
+      return value[target.measure ? target.measure : 'hits'];
+    }
+
+    function transform(target, result) {
+      var dp = [];
+      var value;
+      for(var ts in result) {
+        var item = result[ts];
+        ts *= 1000;// cast unix timestamp to milliseconds
+        // transform function must return array of data points
+        // format of data points is [measure, ts, ..., ] where measure is a number, ts is timestamp in milliseconds
+        // the format might be extended for geo data support
+        var transformFn = transformers[reports[target.report.id].transform];
+        if(transformFn) {
+          value = transformFn(ts, item, target);
+        } else { // none transformation is applied if transformation function is not defined or not found in the map
+          value = [getMeasure(item, target), ts];
+        }
+        if(value) {
+          // support multi value: array of arrays
+          if(Array.isArray(value[0])) {
+            for(var i in value) {
+              dp.push(value[i]);
+            }
+          } else {
+            dp.push(value);
           }
         }
       }
       dp.sort(function(a,b) {
         return a[1] - b[1];
       });
-      return {'target': target.field?target.field.name:'unamed field', 'datapoints': dp};
+      return {'target': target.field ? target.field.name : 'unamed field', 'datapoints': dp};
     }
 
     this.query = function(options) {
