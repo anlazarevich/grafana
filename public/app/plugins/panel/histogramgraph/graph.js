@@ -53,6 +53,8 @@ function (angular, _, $, sigma) {
             return;
           }
 
+          panel.targets[0].table = 'client_hist';
+          delete panel.targets[0].qip;
           // Instantiate sigma:
           sigmaInstance = new sigma({
             graph: data,
@@ -63,7 +65,7 @@ function (angular, _, $, sigma) {
               container: elem[0],
               type: 'canvas'
             },
-            settings: {defaultLabelColor: '#FFFFFF'}
+            settings: {defaultLabelColor: '#606060'}
           });
 
           var forceConfig = {

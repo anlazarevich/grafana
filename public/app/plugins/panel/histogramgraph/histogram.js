@@ -14,7 +14,7 @@ function (angular, app, _, $) {
 
     return {
       link: function(scope, elem) {
-        var data, histogram;
+        var histogram;
         var ctrl = scope.ctrl;
         var panel = ctrl.panel;
 
@@ -22,8 +22,8 @@ function (angular, app, _, $) {
           if(!renderData) {
             return;
           }
-          data = renderData.data;
-          render(renderData);
+//          data = renderData.data;
+          render(renderData.data);
         });
 
         function setElementHeight() {
@@ -45,26 +45,17 @@ function (angular, app, _, $) {
           }
         }
 
-        function render() {
+        function render(response) {
           setElementHeight();
 
           if(histogram) {
             return;
           }
-
-          var d1 = [];
-          for (var i = 0; i <= 10; i += 1) {
-            d1.push([i, parseInt(Math.random() * 30)]);
-          }
-
-          var d2 = [];
-          for (i = 0; i <= 10; i += 1) {
-            d2.push([i, parseInt(Math.random() * 30)]);
-          }
-
-          var d3 = [];
-          for (i = 0; i <= 10; i += 1) {
-            d3.push([i, parseInt(Math.random() * 30)]);
+          var ticks = [], data = [];
+          for(var i in response) {
+            var item = response[i];
+            ticks.push([i, item.qip]);
+            data.push([i, item.count]);
           }
 
           var stack = 0,
@@ -73,7 +64,7 @@ function (angular, app, _, $) {
           steps = false;
 
           function plotWithOptions() {
-            $.plot(elem[0], [{label:'test1', data: d1}, {label:'test2', data: d2}, {label:'test3', data: d3}], {
+            $.plot(elem[0], [{label:'Infected Clients', data: data}], {
               series: {
                 stack: stack,
                 lines: {
@@ -86,14 +77,18 @@ function (angular, app, _, $) {
                 barWidth: 0.6
               }
             },
+            xaxis: {
+              ticks: ticks
+            },
             grid: { clickable: true, hoverable: true }
           });
           }
 
           $(elem).bind("plotclick", function (event, pos, item) {
-            if (item) {
-              alert(item.datapoint);
-            }
+            panel.targets[0].qip = ticks[item.dataIndex][1];
+            panel.targets[0].table = 'graph_stat';
+            scope.$emit('activate-tab', 'graph');
+            ctrl.refresh();
           });
 
           plotWithOptions();

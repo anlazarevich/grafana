@@ -1,0 +1,7 @@
+{
+  "type": "datasource",
+  "name": "Cassandra",
+  "id": "cassandra",
+  "metrics": true,
+  "annotations": false
+}

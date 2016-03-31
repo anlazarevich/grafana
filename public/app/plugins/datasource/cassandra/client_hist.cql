@@ -1,0 +1,3 @@
+update client_hist set count=count+1 where company = '1234567890' and qip = '68.105.28.240' and day = '2016-01-01' and qname = 'test' and qtype = 1;
+update client_hist set count=count+1 where company = '1234567890' and qip = '10.41.167.137' and day = '2016-01-01' and qname = 'test' and qtype = 1;
+update client_hist set count=count+1 where company = '1234567890' and qip = '37.9.72.200' and day = '2016-01-01' and qname = 'test' and qtype = 1;

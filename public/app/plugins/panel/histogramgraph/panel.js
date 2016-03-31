@@ -16,26 +16,35 @@ function (angular, _, $, template) {
     return {
       template: template,
       link: function(scope, elem) {
-        var data;
 
         $('.nav.nav-tabs a', elem).click(function (e) {
           e.preventDefault();
           var navtab = $(this);
+          activateTab(navtab);
+        });
+
+        scope.$on('activate-tab', function(event, tab) {
+          var navtab = $('.nav.nav-tabs a[data-source="' + tab + '"]', elem);
+          activateTab(navtab);
+          event.stopPropagation();
+        });
+
+        function activateTab(navtab) {
           var attrVal = navtab.attr('data-source');
           $('.tab-pane.active', elem).removeClass('active');
           $('div[data-target*=' + attrVal + ']', elem).addClass('active');
-          $(this).tab('show');
-          if(attrVal === 'graph') {
-            scope.$broadcast('render-graph', data);
-          }
-        });
+          navtab.tab('show');
+        }
 
         scope.$on('render', function(event, renderData) {
           if(!renderData) {
             return;
           }
-          scope.$broadcast('render-histogram', renderData);
-          data = renderData;
+          if(Array.isArray(renderData.data)) {
+            scope.$broadcast('render-histogram', renderData);
+          } else {
+            scope.$broadcast('render-graph', renderData);
+          }
         });
 
       }
