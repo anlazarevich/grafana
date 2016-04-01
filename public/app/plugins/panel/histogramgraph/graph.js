@@ -49,24 +49,36 @@ function (angular, _, $, sigma) {
         function render() {
           setElementHeight();
 
-          if(sigmaInstance) {
-            return;
-          }
-
           panel.targets[0].table = 'client_hist';
           delete panel.targets[0].qip;
-          // Instantiate sigma:
-          sigmaInstance = new sigma({
-            graph: data,
-            renderer: {
-              // IMPORTANT:
-              // This works only with the canvas renderer, so the
-              // renderer type set as "canvas" is necessary here.
-              container: elem[0],
-              type: 'canvas'
-            },
-            settings: {defaultLabelColor: '#606060'}
-          });
+
+          if (!sigmaInstance) {
+            // Instantiate sigma:
+            sigmaInstance = new sigma({
+              graph : data,
+              renderer : {
+                container : elem[0],
+                // IMPORTANT:
+                // This works only with the canvas renderer, so the
+                // renderer type set as "canvas" is necessary here.
+                type : 'canvas'
+              },
+              settings : {
+                defaultLabelColor : '#606060' //gray color
+              }
+            });
+          } else {
+            var graph = sigmaInstance.graph;
+            graph.clear();
+            data.nodes.forEach(function(node) {
+              graph.addNode(node);
+            });
+            data.edges.forEach(function(edge) {
+              graph.addEdge(edge);
+            });
+//            sigma.plugins.killDragNodes(sigmaInstance);
+            sigmaInstance.refresh();
+          }
 
           var forceConfig = {
               /**
@@ -92,7 +104,7 @@ function (angular, _, $, sigma) {
         }
 
         function stopForceAtlas2() {
-          sigmaInstance.stopForceAtlas2();
+          sigmaInstance.killForceAtlas2();
           // Initialize the dragNodes plugin:
           sigma.plugins.dragNodes(sigmaInstance, sigmaInstance.renderers[0]);
         }

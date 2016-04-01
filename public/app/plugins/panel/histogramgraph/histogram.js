@@ -14,7 +14,6 @@ function (angular, app, _, $) {
 
     return {
       link: function(scope, elem) {
-        var histogram;
         var ctrl = scope.ctrl;
         var panel = ctrl.panel;
 
@@ -48,9 +47,6 @@ function (angular, app, _, $) {
         function render(response) {
           setElementHeight();
 
-          if(histogram) {
-            return;
-          }
           var ticks = [], data = [];
           for(var i in response) {
             var item = response[i];
@@ -84,6 +80,7 @@ function (angular, app, _, $) {
           });
           }
 
+          $(elem).unbind("plotclick");
           $(elem).bind("plotclick", function (event, pos, item) {
             panel.targets[0].qip = ticks[item.dataIndex][1];
             panel.targets[0].table = 'graph_stat';
