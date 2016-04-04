@@ -93,10 +93,18 @@ function () {
     }
 
     function trasform2Histogram(result) {
-      var res = [];
+      var res = [], map = {};
       result.forEach(function(item) {
-        res.push({qip: item.qip, count: item.count});
+        var count = map[item.qip];
+        if(!count) {
+          map[item.qip] = item.count;
+        } else {
+          map[item.qip] += item.count;
+        }
       });
+      for(var qip in map) {
+        res.push({qip: qip, count: map[qip]});
+      }
       return res;
     }
 
