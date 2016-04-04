@@ -3,7 +3,8 @@ define([
   'app/app',
   'lodash',
   'jquery',
-  'jquery.flot'
+  'jquery.flot',
+  'jquery.flot.navigate'
 ],
 function (angular, app, _, $) {
   'use strict';
@@ -76,12 +77,21 @@ function (angular, app, _, $) {
             xaxis: {
               ticks: ticks
             },
+            zoom: {
+              interactive: true
+            },
+            pan: {
+              interactive: true
+            },
             grid: { clickable: true, hoverable: true }
           });
           }
 
           $(elem).unbind("plotclick");
           $(elem).bind("plotclick", function (event, pos, item) {
+            if(!item) {
+              return;
+            }
             panel.targets[0].qip = ticks[item.dataIndex][1];
             panel.targets[0].table = 'graph_stat';
             scope.$emit('activate-tab', 'graph');
