@@ -18,8 +18,9 @@ If it doesn't exist then create it.
 7. $ go run build.go setup          # (only needed once to install godep)
 8. $ $GOPATH/bin/godep restore         # (will pull down all golang lib dependencies in your current GOPATH)
 9. $ go run build.go build              # (or 'go build .')
-10. $ npm install
-11. $ grunt
+10. $ go run build.go pkg-deb       # Build packages for Ubuntu
+11. $ npm install
+12. $ grunt
 ```
 
 ##Run Grafana Server
