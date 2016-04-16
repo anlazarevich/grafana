@@ -85,11 +85,15 @@ function (angular, app, _, $, L, ThreatControl) {
             return;
           }
           var mapData = normalize(data);
+          // FIXME - The scale was set to 10000 not sure why it broke?
+          //var scale = 10000;
+          var scale = 3;
+
           for(var id in mapData) {
             var val = mapData[id];
             var coords = val.coords;
             // coords have the format as an array[latitude,longitude]
-            var circle = L.circle([coords[0], coords[1]], val.measure*10000, {
+            var circle = L.circle([coords[0], coords[1]], val.measure*scale, {
               color: 'red',
               fillColor: '#f03',
               fillOpacity: 0.5

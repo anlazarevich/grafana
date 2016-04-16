@@ -18,7 +18,7 @@ function (iso2geo) {
 
   createGeoMap();
 
-  var statDbTable = ':tag:confidence:severity:continent:country.hits';
+  var statDbTable = ':continent:country:severity:confidence:tag.count';
 
   function RedisDatasource(instanceSettings, $q, backendSrv) {
     var baseUrl = '/api/v1/redis',
@@ -227,8 +227,11 @@ function (iso2geo) {
       return false;
     }
 
+    // FIXME - I think this function is obsolete w/ new format I left it here to review with Alex
     function getMeasure(value, target) {
-      return value[target.measure ? target.measure : 'hits'];
+      // Set target to keep grunt lint happy!
+      target.measure = target.measure ? target.measure : 'count';
+      return value;
     }
 
     function transform(target, result) {
@@ -311,7 +314,7 @@ function (iso2geo) {
       return {'t0': range.from.unix(),
           't1': range.to.unix(),
           'dims' : dims.toString(),
-          'measures': 'hits',
+          'measures': 'count',
           'name': resolution+report.table
       };
     };
@@ -327,7 +330,7 @@ function (iso2geo) {
       var params  = {'t0': range.from.unix(),
         't1': range.to.unix(),
         'dims' : dims.toString(),
-        'measures': 'hits',
+        'measures': 'count',
         'name': resolution+statDbTable
       };
       return this._get('/data', params).then(function(result) {
