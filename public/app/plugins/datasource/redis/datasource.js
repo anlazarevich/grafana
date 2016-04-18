@@ -126,7 +126,7 @@ function (iso2geo) {
         for(var tag in iso2CodeValue) {
           var tagValue = iso2CodeValue[tag];
           if(tag != null && tag !== '' && iso2Code === target.field.id) {
-            measure += getMeasure(tagValue, target);
+            measure += tagValue;
           }
         }
       }
@@ -145,9 +145,9 @@ function (iso2geo) {
           var tagValue = iso2CodeValue[tag];
           if(tag != null && tag !== '') {
             if(target.field.id === 'total_traffic') {
-              measure += getMeasure(tagValue, target);
+              measure += tagValue;
             } else if(watchListFilter(iso2Code)) {
-              measure += getMeasure(tagValue, target);
+              measure += tagValue;
             }
           }
         }
@@ -164,7 +164,7 @@ function (iso2geo) {
       for(var tag in item) {
         var tagValue = item[tag];
         if(target.field.id === tag) {
-          measure += getMeasure(tagValue, target);
+          measure += tagValue;
         }
       }
       if(measure === 0) {
@@ -180,11 +180,11 @@ function (iso2geo) {
         var tagValue = item[tag];
         if(target.field.id === 'total_traffic') {
           if(tag == null && tag === '') {
-            measure += getMeasure(tagValue, target);
+            measure += tagValue;
           }
         } else {
           if(tag != null && tag !== '') {
-            measure += getMeasure(tagValue, target);
+            measure += tagValue;
           }
         }
       }
@@ -195,7 +195,7 @@ function (iso2geo) {
       }
     }
 
-    function transform2GeoMap(ts, item, target) {
+    function transform2GeoMap(ts, item) {
       var res = [];
       for(var iso2Code in item) {
         var iso2CodeValue = item[iso2Code];
@@ -206,7 +206,7 @@ function (iso2geo) {
             if(!coordinates) {
               continue;
             }
-            res.push([getMeasure(tagValue, target), ts, coordinates, iso2Code]);
+            res.push([tagValue, ts, coordinates, iso2Code]);
           }
         }
       }
@@ -227,13 +227,6 @@ function (iso2geo) {
       return false;
     }
 
-    // FIXME - I think this function is obsolete w/ new format I left it here to review with Alex
-    function getMeasure(value, target) {
-      // Set target to keep grunt lint happy!
-      target.measure = target.measure ? target.measure : 'count';
-      return value;
-    }
-
     function transform(target, result) {
       var dp = [];
       var value;
@@ -247,7 +240,7 @@ function (iso2geo) {
         if(transformFn) {
           value = transformFn(ts, item, target);
         } else { // none transformation is applied if transformation function is not defined or not found in the map
-          value = [getMeasure(item, target), ts];
+          value = [item, ts];
         }
         if(value) {
           // support multi value: array of arrays

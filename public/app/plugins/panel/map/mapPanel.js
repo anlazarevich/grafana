@@ -86,7 +86,9 @@ function (angular, app, _, $, L, ThreatControl) {
           }
           var mapData = normalize(data);
           // FIXME - The scale was set to 10000 not sure why it broke?
-          //var scale = 10000;
+          // Scale value highly depends on number of hits in a given record if the value is too high then
+          // a circle may have a huge radius that causes red screen on the map.
+          // Probably scale should be calculated with more intelligent way.
           var scale = 3;
 
           for(var id in mapData) {
