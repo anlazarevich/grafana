@@ -30,7 +30,8 @@ System.config({
     "leaflet": "vendor/leaflet/dist/leaflet",
     "sigma": "vendor/sigma/build/sigma",
     "sigma.force2Atlas": "vendor/sigma/build/plugins/sigma.layout.forceAtlas2.min.js",
-    "sigma.dragNodes": "vendor/sigma/build/plugins/sigma.plugins.dragNodes.min.js"
+    "sigma.dragNodes": "vendor/sigma/build/plugins/sigma.plugins.dragNodes.min.js",
+    "crypto-js": "vendor/crypto-js/md5.js"
   },
 
   packages: {
@@ -65,6 +66,10 @@ System.config({
     },
     'vendor/sigma/build/plugins/sigma.layout.forceAtlas2.min.js': {
       format: 'global'
+    },
+    'vendor/crypto-js/md5.js': {
+      format: 'global',
+      exports: 'CryptoJS'
     }
   }
 });

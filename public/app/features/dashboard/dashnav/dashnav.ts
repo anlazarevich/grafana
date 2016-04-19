@@ -28,13 +28,7 @@ export class DashNavCtrl {
           $scope.titleTooltip += '<br>Expires: &nbsp;' + moment(meta.expires).fromNow() + '<br>';
         }
       }
-      var names = $scope.contextSrv.user.name.split(' ');
-      if (names.length > 1) {
-          $scope.firstName = names[0];
-          $scope.lastName = names[1];
-      } else {
-          $scope.firstName = $scope.contextSrv.user.name;
-      }
+      $scope.userEmail = $scope.contextSrv.user.email;
     };
 
     $scope.openEditView = function(editview) {

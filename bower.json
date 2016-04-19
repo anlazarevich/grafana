@@ -20,6 +20,7 @@
     "angular-sanitize": "~1.5.1",
     "angular-bindonce": "~0.3.3",
     "leaflet": "~0.7.7",
-    "sigma": "~1.0.3"
+    "sigma": "~1.0.3",
+    "crypto-js": "CryptoJS#~3.1.12"
   }
 }

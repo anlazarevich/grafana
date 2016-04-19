@@ -73,6 +73,7 @@ export class GrafanaApp {
       'pasvaz.bindonce',
       'ui.bootstrap',
       'ui.bootstrap.tpls',
+      'ngGravatar'
     ];
 
     var module_types = ['controllers', 'directives', 'factories', 'services', 'filters', 'routes'];

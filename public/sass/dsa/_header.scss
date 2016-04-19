@@ -70,7 +70,7 @@ $lbluegray: #4689C2;
 
     a {
     	padding: 14px 15px 14px 20px;
-       	min-width: 180px;
+       	min-width: 290px;
        	text-align: left;
     }
 
@@ -80,6 +80,7 @@ $lbluegray: #4689C2;
         color: $link-color;
         position: relative;
         bottom: 13px;
+        top: 9px
     }
 
     .user-icon {
@@ -88,4 +89,8 @@ $lbluegray: #4689C2;
         margin-right: 10px;
         top: 4px;
      }
+}
+
+.user-gravatar {
+  border-radius: 20px;
 }

@@ -18,6 +18,7 @@ import "./directives/value_select_dropdown";
 import "./directives/plugin_component";
 import "./directives/rebuild_on_change";
 import "./directives/give_focus";
+import "./directives/ng_gravatar";
 import './jquery_extended';
 import './partials';
 

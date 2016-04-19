@@ -15,6 +15,9 @@
 </a>
 
 <ul class="nav pull-left dashnav-action-icons">
+    <li>
+		<a href="{{xaasUrl}}" bs-tooltip="'Back to XaaS portal'" data-placement="bottom">Home</a>
+	</li>
 	<li ng-show="::dashboardMeta.canStar">
 		<a class="pointer" ng-click="starDashboard()">
 			<i class="fa" ng-class="{'fa-star-o': !dashboardMeta.isStarred, 'fa-star': dashboardMeta.isStarred}" style="color: orange;"></i>
@@ -50,10 +53,7 @@
 			<li ng-if="contextSrv.isEditor"><a class="pointer" ng-click="saveDashboardAs();">Save As...</a></li>
 			<li ng-if="dashboardMeta.canSave"><a class="pointer" ng-click="deleteDashboard();">Delete dashboard</a></li>
 		</ul>
-	</li>
-	<li>
-		<a href="{{xaasUrl}}" bs-tooltip="'Back to XaaS portal'" data-placement="bottom"><i class="fa fa-sitemap"></i></a>
-	</li>
+	</li>	
 </ul>
 
 <ul class="nav dash-playlist-actions" ng-if="playlistSrv">
@@ -79,7 +79,9 @@
 	</li>
 	<li id="user-dropdown" role="presentation" class="pull-right dropdown">
     	<a class="dropdown-toggle text-left" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
-    		<span class="flaticon stroke logout-1 user-icon pull-left"></span> {{firstName}}<br> {{lastName}} <span class="flaticon stroke down-2 pull-right"></span>
+    		<gravatar email="userEmail" size="40"></gravatar>&nbsp;&nbsp;                               
+               {{userEmail}} 
+    		<span class="flaticon stroke down-2 pull-right"></span>
     	</a>
     	<ul class="dropdown-menu">
     		<li>
