@@ -4,9 +4,10 @@ define([
   'lodash',
   'jquery',
   'leaflet',
-  './threat_control'
+  './threat_control',
+  'app/core/config'
 ],
-function (angular, app, _, $, L, ThreatControl) {
+function (angular, app, _, $, L, ThreatControl, config) {
   'use strict';
 
   var module = angular.module('grafana.directives');
@@ -62,7 +63,7 @@ function (angular, app, _, $, L, ThreatControl) {
           if(map) {
             return;
           }
-          L.Icon.Default.imagePath = 'public/vendor/leaflet/dist/images';
+          L.Icon.Default.imagePath = config.appSubUrl + '/public/vendor/leaflet/dist/images';
           map = L.map(elem[0]).setView([37.8, -96], 2);
           L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
