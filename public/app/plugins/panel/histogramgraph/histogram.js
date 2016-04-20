@@ -22,9 +22,13 @@ function (angular, app, _, $) {
           if(!renderData) {
             return;
           }
-//          data = renderData.data;
-          render(renderData.data);
+          render(transform(renderData.data));
         });
+
+        function transform(data) {
+          // return top 10 clients only
+          return data[0].datapoints.slice(0, 10);
+        }
 
         function setElementHeight() {
           try {
@@ -71,7 +75,7 @@ function (angular, app, _, $) {
               },
               bars: {
                 show: bars,
-                barWidth: 0.6
+                barWidth: 0.3
               }
             },
             xaxis: {
@@ -93,7 +97,7 @@ function (angular, app, _, $) {
               return;
             }
             panel.targets[0].qip = ticks[item.dataIndex][1];
-            panel.targets[0].table = 'graph_stat';
+            panel.targets[0].report.id = 'graph';
             scope.$emit('activate-tab', 'graph');
             ctrl.refresh();
           });

@@ -17,6 +17,9 @@ function (angular, _, $, template) {
       template: template,
       link: function(scope, elem) {
 
+        var ctrl = scope.ctrl;
+        var panel = ctrl.panel;
+
         $('.nav.nav-tabs a', elem).click(function (e) {
           e.preventDefault();
           var navtab = $(this);
@@ -40,7 +43,7 @@ function (angular, _, $, template) {
           if(!renderData) {
             return;
           }
-          if(Array.isArray(renderData.data)) {
+          if(!panel.targets[0].qip) {
             scope.$broadcast('render-histogram', renderData);
           } else {
             scope.$broadcast('render-graph', renderData);

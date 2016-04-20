@@ -23,9 +23,75 @@ function (angular, _, $, sigma) {
           if(!renderData) {
             return;
           }
-          data = renderData.data;
+          data = toGraph(renderData.data);
           render();
         });
+
+        function toGraph(data) {
+          var qip = panel.targets[0].qip;
+          var g = {
+              nodes : [],
+              edges : []
+            },
+            nodeSeq = 2, edgeSeq = 1, rootNodeId = '1';
+            // add root node as qip
+          g.nodes.push({
+              id : rootNodeId,
+              label : qip,
+              x : Math.random(),
+              y : Math.random(),
+              size : 10,
+              color : '#6E9ECE'
+            });
+          var map = {};
+          data[0].datapoints.forEach(function(item) {
+              for(var tag in item) {
+                var count = map[tag];
+                if(!count) {
+                  map[tag] = item[tag];
+                } else {
+                  map[tag]+= item[tag];
+                }
+              }
+            });
+          var result = [];
+          for(var tag in map) {
+            result.push({tag:tag, count: map[tag]});
+          }
+          result.sort(function(a,b) {
+            b.count - a.count;
+          });
+          var maxChildNodes = 100;
+          if(result.length > maxChildNodes) {
+            result = result.slice(0, maxChildNodes);
+          }
+          nodeSeq++;
+          result.forEach(function(row) {
+            var nodeId = nodeSeq.toString();
+            nodeSeq++;
+            g.nodes
+                  .push({
+                    id : nodeId,
+                    label : row.tag + '(' + row.count + ')',
+                    x : Math.random(),
+                    y : Math.random(),
+                    size : 10,
+                    color : '#FF0000'
+                  });
+            g.edges.push({
+                id : edgeSeq.toString(),
+                source : rootNodeId, // root node has always id equal to 1
+                target : nodeId,
+                size : 10,
+                color : '#ccc',
+                type : 'curvedArrow',
+                arrow : 'source',
+                label : "This is the label"
+              });
+            edgeSeq++;
+          });
+          return g;
+        }
 
         function setElementHeight() {
           try {
@@ -49,8 +115,8 @@ function (angular, _, $, sigma) {
         function render() {
           setElementHeight();
 
-          panel.targets[0].table = 'client_hist';
           delete panel.targets[0].qip;
+          panel.targets[0].report.id = 'top_bad_traffic_users';
 
           if (!sigmaInstance) {
             // Instantiate sigma:
