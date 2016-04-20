@@ -8,7 +8,7 @@
 
 .navbar-inner {
   min-height: $navbarHeight;
-  padding-right: $spacer;
+  //padding-right: $spacer;
   background-color: $navbarBackground;
   border-bottom: $navbarBorder;
   @include clearfix();
