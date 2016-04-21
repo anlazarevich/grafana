@@ -146,33 +146,37 @@ function (angular, _, $, sigma) {
             sigmaInstance.refresh();
           }
 
-          var forceConfig = {
+          //TODO Move this property to panel configuration tab
+          var enableForce2Atlas = false;
+          if (enableForce2Atlas) {
+            var forceConfig = {
               /**
-               * The “Strong gravity” option sets a force that attracts the nodes that are distant
-               * from the center more ( is this distance). This force has the drawback of being so
-               * strong that it is sometimes stronger than the other forces.
-               * It may result in a biased placement of the nodes.
-               * However, its advantage is to force a very compact layout,
-               * which may be useful for certain purposes.
+               * The “Strong gravity” option sets a force that attracts the
+               * nodes that are distant from the center more ( is this
+               * distance). This force has the drawback of being so strong that
+               * it is sometimes stronger than the other forces. It may result
+               * in a biased placement of the nodes. However, its advantage is
+               * to force a very compact layout, which may be useful for certain
+               * purposes.
                */
-              strongGravityMode: true,
+              strongGravityMode : true,
               /**
-               *  It is important to notice that this mode adds a considerable friction
-               *  in the convergence movement,
-               *  slowing spatialization performances. It is necessary to apply it only
-               *  after the convergence
-               *  of graph spatialization.
+               * It is important to notice that this mode adds a considerable
+               * friction in the convergence movement, slowing spatialization
+               * performances. It is necessary to apply it only after the
+               * convergence of graph spatialization.
                */
-              adjustSizes: true,
-          };
-          sigmaInstance.startForceAtlas2(forceConfig);
-          $timeout(stopForceAtlas2, 3000);
+              adjustSizes : true,
+            };
+            sigmaInstance.startForceAtlas2(forceConfig);
+            $timeout(stopForceAtlas2, 3000);
+          }
+          // Initialize the dragNodes plugin:
+          sigma.plugins.dragNodes(sigmaInstance, sigmaInstance.renderers[0]);
         }
 
         function stopForceAtlas2() {
           sigmaInstance.killForceAtlas2();
-          // Initialize the dragNodes plugin:
-          sigma.plugins.dragNodes(sigmaInstance, sigmaInstance.renderers[0]);
         }
       }
     };

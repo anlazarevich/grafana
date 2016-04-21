@@ -21,6 +21,7 @@
     "angular-bindonce": "~0.3.3",
     "leaflet": "~0.7.7",
     "sigma": "~1.0.3",
-    "crypto-js": "CryptoJS#~3.1.12"
+    "crypto-js": "CryptoJS#~3.1.12",
+    "paging": "1.2.0"
   }
 }

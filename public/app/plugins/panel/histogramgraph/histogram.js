@@ -4,7 +4,8 @@ define([
   'lodash',
   'jquery',
   'jquery.flot',
-  'jquery.flot.navigate'
+  'jquery.flot.navigate',
+  'jquery.paging'
 ],
 function (angular, app, _, $) {
   'use strict';
@@ -16,18 +17,18 @@ function (angular, app, _, $) {
     return {
       link: function(scope, elem) {
         var ctrl = scope.ctrl;
-        var panel = ctrl.panel;
+        var panel = ctrl.panel, data;
 
         scope.$on('render-histogram', function(event, renderData) {
           if(!renderData) {
             return;
           }
-          render(transform(renderData.data));
+          data = transform(renderData);
+          renderPaginator(data.length);
         });
 
         function transform(data) {
-          // return top 10 clients only
-          return data[0].datapoints.slice(0, 10);
+          return data.data[0].datapoints;
         }
 
         function setElementHeight() {
@@ -40,6 +41,7 @@ function (angular, app, _, $) {
             height -= 5; // padding
             height -= panel.title ? 24 : 9; // subtract panel title bar
             height -= 50; // substract tab header
+            height -= 50; // substract paginator
 
             elem.css('height', height + 'px');
 
@@ -49,9 +51,79 @@ function (angular, app, _, $) {
           }
         }
 
+        function renderPaginator(numberOfItems) {
+          var perpage = 10;
+          var paginatorEl = $('.pagination', elem.parent());
+          paginatorEl.empty();
+          paginatorEl.paging(numberOfItems, {
+            format : '[< ncnnnnnnnnnnn >]',
+            perpage: perpage,
+            onSelect : function(page) {
+              var end = page * perpage,
+                  start = (page - 1)*perpage;
+              render(data.slice(start, end));
+            },
+            onFormat : function(type) {
+              switch (type) {
+
+              case 'block':
+
+                if (!this.active) {
+                  return '&nbsp;<span class="disabled">' + this.value + '</span>&nbsp;';
+                }
+                else if (this.value !== this.page) {
+                  return '&nbsp;<em><a class="pagination-link" href="#' + this.value + '">' + this.value + '</a></em>&nbsp;';
+                }
+                return '&nbsp;<span class="current">' + this.value + '</span>&nbsp;';
+
+              case 'right':
+              case 'left':
+
+                if (!this.active) {
+                  return "";
+                }
+                return '&nbsp;<a class="pagination-link" href="#' + this.value + '">' + this.value + '</a>&nbsp;';
+
+              case 'next':
+
+                if (this.active) {
+                  return '&nbsp;<a class="pagination-link" href="#' + this.value + '" class="next">Next</a>&nbsp;';
+                }
+                return '&nbsp;<span class="disabled">Next</span>&nbsp;';
+
+              case 'prev':
+
+                if (this.active) {
+                  return '&nbsp;<a class="pagination-link" href="#' + this.value + '" class="prev">Previous</a>&nbsp;';
+                }
+                return '&nbsp;<span class="disabled">Previous</span>&nbsp;';
+
+              case 'first':
+
+                if (this.active) {
+                  return '<a class="pagination-link" href="#' + this.value + '" class="first">|&lt;</a>';
+                }
+                return '<span class="disabled">|&lt;</span>';
+
+              case 'last':
+
+                if (this.active) {
+                  return '<a class="pagination-link" href="#' + this.value + '" class="prev">&gt;|</a>';
+                }
+                return '<span class="disabled">&gt;|</span>';
+
+              case 'fill':
+                if (this.active) {
+                  return "...";
+                }
+              }
+              return ""; // return nothing for missing branches
+            }
+          });
+        }
+
         function render(response) {
           setElementHeight();
-
           var ticks = [], data = [];
           for(var i in response) {
             var item = response[i];
@@ -72,23 +144,26 @@ function (angular, app, _, $) {
                   show: lines,
                   fill: true,
                   steps: steps
-              },
-              bars: {
+                },
+                bars: {
                 show: bars,
                 barWidth: 0.3
-              }
-            },
-            xaxis: {
-              ticks: ticks
-            },
-            zoom: {
-              interactive: true
-            },
-            pan: {
-              interactive: true
-            },
-            grid: { clickable: true, hoverable: true }
-          });
+                }
+              },
+              xaxis: {
+                ticks: ticks
+                //this option doesn't work for current flot version
+                //labelAngle: 45
+              },
+              zoom: {
+                interactive: false
+              },
+              pan: {
+                interactive: true
+              },
+              grid: { clickable: true, hoverable: true }
+            });
+            $('.flot-x-axis>.flot-tick-label', elem).addClass('flot-tick-label-rotate');
           }
 
           $(elem).unbind("plotclick");

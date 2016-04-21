@@ -5,7 +5,35 @@
 
 <div class="tab-content">
     <div role="tabpanel" data-target="histogram" class="tab-pane active">
-      <div style="width: 100%; position: relative;" tab-histogram></div>
+      <div style="width: 100%; position: relative;" tab-histogram>      	
+      </div>   
+      <style>
+      .pagination {
+         padding-top: 30px;
+      }
+       .pagination-link {
+          margin: 2px;
+          color: blue;
+       }
+       .flot-tick-label-rotate { 
+    	/* Rotate Axis Labels */
+    	transform: translateX(50%) rotate(30deg); /* CSS3 */
+    	transform-origin: 0 0;
+    	
+    	-ms-transform: translateX(50%) rotate(30deg); /* IE */
+    	-ms-transform-origin: 0 0;
+		
+    	-moz-transform: translateX(50%) rotate(30deg); /* Firefox */
+    	-moz-transform-origin: 0 0;
+    	
+    	-webkit-transform: translateX(50%) rotate(30deg); /* Safari and Chrome */
+    	-webkit-transform-origin: 0 0;
+
+    	-o-transform: translateX(50%) rotate(30deg); /* Opera */
+    	-o-transform-origin: 0 0;
+	   }
+      </style>   
+      <div class="pagination"></div>
     </div>
     <div role="tabpanel" class="tab-pane" data-target="graph">
       <div tab-graph style="position: absolute; width: 100%; height: 100%;margin: 0; padding: 0"></div>      
