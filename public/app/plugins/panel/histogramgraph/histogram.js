@@ -17,7 +17,15 @@ function (angular, app, _, $) {
     return {
       link: function(scope, elem) {
         var ctrl = scope.ctrl;
-        var panel = ctrl.panel, data;
+        var panel = ctrl.panel, data,
+        paginatorEl, histogramEl;
+
+        function init() {
+          histogramEl = $(elem).append('<div class="histogram-container"></div>').find('.histogram-container');
+          paginatorEl = $(elem).append('<div class="pagination"></div>').find('.pagination');
+        }
+
+        init();
 
         scope.$on('render-histogram', function(event, renderData) {
           if(!renderData) {
@@ -31,7 +39,7 @@ function (angular, app, _, $) {
           return data.data[0].datapoints;
         }
 
-        function setElementHeight() {
+        function setHistogramHeight() {
           try {
             var height = ctrl.height || panel.height || ctrl.row.height;
             if (_.isString(height)) {
@@ -43,7 +51,7 @@ function (angular, app, _, $) {
             height -= 50; // substract tab header
             height -= 50; // substract paginator
 
-            elem.css('height', height + 'px');
+            histogramEl.css('height', height + 'px');
 
             return true;
           } catch(e) { // IE throws errors sometimes
@@ -53,7 +61,6 @@ function (angular, app, _, $) {
 
         function renderPaginator(numberOfItems) {
           var perpage = 10;
-          var paginatorEl = $('.pagination', elem.parent());
           paginatorEl.empty();
           paginatorEl.paging(numberOfItems, {
             format : '[< ncnnnnnnnnnnn >]',
@@ -61,7 +68,7 @@ function (angular, app, _, $) {
             onSelect : function(page) {
               var end = page * perpage,
                   start = (page - 1)*perpage;
-              render(data.slice(start, end));
+              renderHistogram(data.slice(start, end));
             },
             onFormat : function(type) {
               switch (type) {
@@ -122,8 +129,8 @@ function (angular, app, _, $) {
           });
         }
 
-        function render(response) {
-          setElementHeight();
+        function renderHistogram(response) {
+          setHistogramHeight();
           var ticks = [], data = [];
           for(var i in response) {
             var item = response[i];
@@ -137,7 +144,7 @@ function (angular, app, _, $) {
           steps = false;
 
           function plotWithOptions() {
-            $.plot(elem[0], [{label:'Infected Clients', data: data}], {
+            $.plot(histogramEl[0], [{label:'Infected Clients', data: data}], {
               series: {
                 stack: stack,
                 lines: {
@@ -163,11 +170,11 @@ function (angular, app, _, $) {
               },
               grid: { clickable: true, hoverable: true }
             });
-            $('.flot-x-axis>.flot-tick-label', elem).addClass('flot-tick-label-rotate');
+            $('.flot-x-axis>.flot-tick-label', histogramEl).addClass('flot-tick-label-rotate');
           }
 
-          $(elem).unbind("plotclick");
-          $(elem).bind("plotclick", function (event, pos, item) {
+          $(histogramEl).unbind("plotclick");
+          $(histogramEl).bind("plotclick", function (event, pos, item) {
             if(!item) {
               return;
             }
