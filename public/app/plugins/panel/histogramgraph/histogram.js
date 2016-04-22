@@ -28,10 +28,11 @@ function (angular, app, _, $) {
         init();
 
         scope.$on('render-histogram', function(event, renderData) {
-          if(!renderData) {
+          if(renderData) {
+            data = transform(renderData);
+          } else if(!data) {
             return;
           }
-          data = transform(renderData);
           renderPaginator(data.length);
         });
 

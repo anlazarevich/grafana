@@ -40,9 +40,6 @@ function (angular, _, $, template) {
         }
 
         scope.$on('render', function(event, renderData) {
-          if(!renderData) {
-            return;
-          }
           if(!panel.targets[0].qip) {
             scope.$broadcast('render-histogram', renderData);
           } else {
