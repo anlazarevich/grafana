@@ -5,6 +5,7 @@ import moment from 'moment';
 import angular from 'angular';
 import config from 'app/core/config';
 import $ from 'jquery';
+import * as impressionStore from '../impression_store';
 
 export class DashNavCtrl {
 
@@ -150,6 +151,7 @@ export class DashNavCtrl {
 
     $scope.deleteDashboardConfirmed = function() {
       backendSrv.delete('/api/dashboards/db/' + $scope.dashboardMeta.slug).then(function() {
+        impressionStore.impressions.deleteDashboardImpression($scope.dashboardMeta.slug);
         $scope.appEvent('alert-success', ['Dashboard Deleted', $scope.dashboard.title + ' has been deleted']);
         $location.url('/');
       });
