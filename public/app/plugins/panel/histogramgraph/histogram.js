@@ -18,7 +18,7 @@ function (angular, app, _, $) {
       link: function(scope, elem) {
         var ctrl = scope.ctrl;
         var panel = ctrl.panel, data,
-        paginatorEl, histogramEl;
+        paginatorEl, histogramEl, width, height;
 
         function init() {
           histogramEl = $(elem).append('<div class="histogram-container"></div>').find('.histogram-container');
@@ -30,10 +30,15 @@ function (angular, app, _, $) {
         scope.$on('render-histogram', function(event, renderData) {
           if(renderData) {
             data = transform(renderData);
+            renderPaginator(data.length);
           } else if(!data) {
             return;
+          } else {
+            var h = elem.height(), w = elem.width();
+            if(h !== height || w !== width) {
+              renderPaginator(data.length);
+            }
           }
-          renderPaginator(data.length);
         });
 
         function transform(data) {
@@ -61,6 +66,7 @@ function (angular, app, _, $) {
         }
 
         function renderPaginator(numberOfItems) {
+          height = elem.height(), width = elem.width();
           var perpage = 10;
           paginatorEl.empty();
           paginatorEl.paging(numberOfItems, {

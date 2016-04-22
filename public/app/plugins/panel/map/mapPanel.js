@@ -114,8 +114,9 @@ function (angular, app, _, $, L, ThreatControl, config) {
 
         function render() {
           setElementHeight();
-          elem.empty();
-          initMap();
+          if(!map) {
+            initMap();
+          }
           addCircles();
         }
       }
