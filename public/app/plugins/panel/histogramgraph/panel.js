@@ -24,6 +24,7 @@ function (angular, _, $, template) {
           e.preventDefault();
           var navtab = $(this);
           activateTab(navtab);
+          scope.$broadcast('render-'+ navtab.attr('data-source'));
         });
 
         scope.$on('activate-tab', function(event, tab) {
@@ -40,13 +41,11 @@ function (angular, _, $, template) {
         }
 
         scope.$on('render', function(event, renderData) {
-          if(!renderData) {
-            return;
-          }
-          if(!panel.targets[0].qip) {
-            scope.$broadcast('render-histogram', renderData);
-          } else {
+          if(panel.targets[0].qip) {
             scope.$broadcast('render-graph', renderData);
+          } else {
+            var target = $('.nav.nav-tabs .active a', elem).attr('data-source');
+            scope.$broadcast('render-'+ target, renderData);
           }
         });
 

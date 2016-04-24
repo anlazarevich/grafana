@@ -17,29 +17,20 @@ function (angular, app, _, $, L, ThreatControl, config) {
     return {
       restrict: 'A',
       link: function(scope, elem) {
-        var data, annotations, map, circles = [];
+        var data, map, circles = [];
         var ctrl = scope.ctrl;
         var panel = ctrl.panel;
 
         scope.$on('render', function(event, renderData) {
-          if(!renderData) {
+          if(renderData) {
+            data = renderData.data;
+            render();
+          } else if(!data) {
             return;
+          } else {
+            map.invalidateSize();
           }
-          data = renderData.data;
-          buildAnnotationCache(renderData.annotations);
-          render(renderData);
         });
-
-        function buildAnnotationCache(events) {
-          if(!events || events.length === 0) {
-            annotations = null;
-            return;
-          }
-          annotations = {};
-          events.forEach(function(event) {
-            annotations[event.tags] = event.title;
-          });
-        }
 
         function setElementHeight() {
           try {
@@ -60,9 +51,6 @@ function (angular, app, _, $, L, ThreatControl, config) {
         }
 
         function initMap() {
-          if(map) {
-            return;
-          }
           L.Icon.Default.imagePath = config.appSubUrl + '/public/vendor/leaflet/dist/images';
           map = L.map(elem[0]).setView([37.8, -96], 2);
           L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
@@ -101,9 +89,9 @@ function (angular, app, _, $, L, ThreatControl, config) {
               fillColor: '#f03',
               fillOpacity: 0.5
             }).addTo(map);
-            if(annotations) {
-              circle.bindPopup(annotations[id]);
-            }
+//            if(annotations) {
+//              circle.bindPopup(annotations[id]);
+//            }
             circles.push(circle);
           }
         }
@@ -126,7 +114,9 @@ function (angular, app, _, $, L, ThreatControl, config) {
 
         function render() {
           setElementHeight();
-          initMap();
+          if(!map) {
+            initMap();
+          }
           addCircles();
         }
       }

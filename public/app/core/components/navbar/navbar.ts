@@ -26,6 +26,7 @@ export function navbarDirective() {
     link: function(scope, elem, attrs, ctrl) {
       ctrl.icon = attrs.icon;
       ctrl.appSubUrl = config.appSubUrl;
+      ctrl.xaasUrl = config.xaasUrl;
       elem.addClass('navbar');
     }
   };

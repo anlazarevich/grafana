@@ -32,6 +32,14 @@ export class ImpressionsStore {
     store.set("dashboard_impressions", JSON.stringify(impressions));
   }
 
+  deleteDashboardImpression(slug) {
+    var impressions = JSON.parse(store.get("dashboard_impressions"));
+    impressions = impressions.filter((imp) => {
+      return slug !== imp.slug;
+    });
+    store.set("dashboard_impressions", JSON.stringify(impressions));
+  }
+
   getDashboardOpened() {
     var impressions = store.get("dashboard_impressions");
     return JSON.parse(impressions || "[]");

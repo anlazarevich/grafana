@@ -17,14 +17,20 @@ function (angular, _, $, sigma) {
       link: function(scope, elem) {
         var data, sigmaInstance;
         var ctrl = scope.ctrl;
-        var panel = ctrl.panel;
+        var panel = ctrl.panel, width, height;
 
         scope.$on('render-graph', function(event, renderData) {
-          if(!renderData) {
+          if(renderData) {
+            data = toGraph(renderData.data);
+            render();
+          } else if(!data) {
             return;
+          } else {
+            var h = elem.height(), w = elem.width();
+            if(h !== height || w !== width) {
+              render();
+            }
           }
-          data = toGraph(renderData.data);
-          render();
         });
 
         function toGraph(data) {
@@ -115,12 +121,15 @@ function (angular, _, $, sigma) {
         function render() {
           setElementHeight();
 
+          height = elem.height(), width = elem.width();
+
           delete panel.targets[0].qip;
           panel.targets[0].report.id = 'top_bad_traffic_users';
 
-          if (!sigmaInstance) {
+          elem.empty();
+//          if (!sigmaInstance) {
             // Instantiate sigma:
-            sigmaInstance = new sigma({
+          sigmaInstance = new sigma({
               graph : data,
               renderer : {
                 container : elem[0],
@@ -133,18 +142,18 @@ function (angular, _, $, sigma) {
                 defaultLabelColor : '#606060' //gray color
               }
             });
-          } else {
-            var graph = sigmaInstance.graph;
-            graph.clear();
-            data.nodes.forEach(function(node) {
-              graph.addNode(node);
-            });
-            data.edges.forEach(function(edge) {
-              graph.addEdge(edge);
-            });
-//            sigma.plugins.killDragNodes(sigmaInstance);
-            sigmaInstance.refresh();
-          }
+//          } else {
+//            var graph = sigmaInstance.graph;
+//            graph.clear();
+//            data.nodes.forEach(function(node) {
+//              graph.addNode(node);
+//            });
+//            data.edges.forEach(function(edge) {
+//              graph.addEdge(edge);
+//            });
+////            sigma.plugins.killDragNodes(sigmaInstance);
+//            sigmaInstance.refresh();
+//          }
 
           //TODO Move this property to panel configuration tab
           var enableForce2Atlas = false;
