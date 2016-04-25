@@ -203,8 +203,6 @@ export class DashNavCtrl {
     };
 
     $scope.logout = function() {
-        // delete session doesn't work on rails because CSRF validation is failed
-        // $.ajax($scope.xaasUrl + 'users/sign_out', {method: "DELETE"}).
         $.ajax('logout', {method: "GET"}).
         done(function() {
             window.location.assign($scope.xaasUrl);

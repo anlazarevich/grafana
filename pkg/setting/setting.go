@@ -41,6 +41,7 @@ var (
 	AppUrl    string
 	AppSubUrl string
 	XaasUrl   string
+	XaasCookieName string
 
 	// build
 	BuildVersion string
@@ -501,6 +502,7 @@ func readSessionConfig() {
 	SessionOptions.Provider = sec.Key("provider").In("memory", []string{"memory", "file", "redis", "mysql", "postgres", "memcache"})
 	SessionOptions.ProviderConfig = strings.Trim(sec.Key("provider_config").String(), "\" ")
 	SessionOptions.CookieName = sec.Key("cookie_name").MustString("grafana_sess")
+	XaasCookieName = sec.Key("xaas_cookie_name").String()
 	SessionOptions.CookiePath = AppSubUrl
 	SessionOptions.Secure = sec.Key("cookie_secure").MustBool()
 	SessionOptions.Gclifetime = Cfg.Section("session").Key("gc_interval_time").MustInt64(86400)
