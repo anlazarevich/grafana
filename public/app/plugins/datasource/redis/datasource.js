@@ -1,19 +1,43 @@
 define([
   './country_latlon.csv!text',
+  './iso3166.csv!text'
 ],
-function (iso2geo) {
+function (iso2geo, isoCodeList) {
   'use strict';
 
-  var geoMap = {};
+  var geoMap = {}, countryList = [];
 
   function createGeoMap() {
-    var lines = iso2geo.split('\n');
-    for(var i=1; i < lines.length; i++) {
-      var parts = lines[i].split(',');
+    var lines = iso2geo.split('\n'),
+    i, parts, item;
+    for(i = 1; i < lines.length; i++) {
+      parts = lines[i].split(',');
       if(parts.length === 3) {
-        geoMap[parts[0]] = [parseFloat(parts[1]), parseFloat(parts[2])];
+        item = geoMap[parts[0]];
+        if(!item) {
+          item = {};
+          geoMap[parts[0]] = item;
+        }
+        geoMap[parts[0]].coords = [parseFloat(parts[1]), parseFloat(parts[2])];
       }
     }
+    lines = isoCodeList.split('\n');
+    for(i = 1; i < lines.length; i++) {
+      parts = lines[i].split(',"');
+      if(parts.length === 2) {
+        var title = parts[1].substring(0, parts[1].length -1);
+        item = geoMap[parts[0]];
+        if(!item) {
+          item = {};
+          geoMap[parts[0]] = item;
+        }
+        geoMap[parts[0]].title = title;
+        countryList.push({'id':parts[0],'name':title});
+      }
+    }
+    countryList.sort(function(a,b) {
+      return (a.name < b.name ? -1 : (a.name > b.name ? 1 : 0));
+    });
   }
 
   createGeoMap();
@@ -28,8 +52,8 @@ function (iso2geo) {
     this.type = instanceSettings.type;
     this.url = instanceSettings.url + baseUrl;
 
-    var watchListFields = [{'id':'CH','name':'China'}, {'id':'RU','name':'Russia'},
-                           {'id':'SY','name':'Syria'}, {'id':'IR','name':'Iran'},
+    var watchListFields = [{'id':'CN','name':'China'}, {'id':'RU','name':'Russian Federation'},
+                           {'id':'SY','name':'Syrian Arab Republic'}, {'id':'IR','name':'Iran, Islamic Republic of'},
                            {'id':'SI','name':'Slovenia'}],
         tagFields = [{'id':'DNST@IB','name':'DNST'},
                      {'id':'Bot@IID','name':'Bot'},
@@ -47,6 +71,7 @@ function (iso2geo) {
 
     var reports  = {'geo_dest_watch_list':{ 'name':'Geographic Destination Watch List',
                       'fields': watchListFields,
+                      'options': countryList,
                       'dim':['timestamp','country','tag'],
                       'sort': 'orderByTs',
                       'transform': 'transform2GeoWatchList',
@@ -110,6 +135,14 @@ function (iso2geo) {
         return;
       }
       return report.fields;
+    };
+
+    this.getOptions = function(reportId) {
+      var report = reports[reportId];
+      if(!report) {
+        return;
+      }
+      return report.options ? report.options : report.fields;
     };
 
     this._get = function(action, params) {
@@ -221,11 +254,11 @@ function (iso2geo) {
         for(var tag in iso2CodeValue) {
           var tagValue = iso2CodeValue[tag];
           if(tag != null && tag !== '') {
-            var coordinates = geoMap[iso2Code];
-            if(!coordinates) {
+            var geo = geoMap[iso2Code];
+            if(!geo || !geo.coords) {
               continue;
             }
-            res.push([tagValue, ts, coordinates, iso2Code]);
+            res.push([tagValue, ts, geo.coords, iso2Code]);
           }
         }
       }

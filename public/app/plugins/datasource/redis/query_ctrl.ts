@@ -8,7 +8,7 @@ export class RedisQueryCtrl extends QueryCtrl {
   static templateUrl = 'partials/query.editor.html';
 
   reports: any[];
-  fields: any[];
+  options: any[];
 
   /** @ngInject **/
   constructor($scope, $injector) {
@@ -16,7 +16,7 @@ export class RedisQueryCtrl extends QueryCtrl {
     this.reports = this.datasource.getReportList();
     var report = this.panel.report;
     if (report) {
-        this.fields = this.datasource.getFields(report.id);
+        this.options = this.datasource.getOptions(report.id);
     }
     if (!this.target.report) {
         this.target.report = report;
@@ -24,13 +24,15 @@ export class RedisQueryCtrl extends QueryCtrl {
   }
 
   changeReport() {
-      this.fields = this.datasource.getFields(this.target.report.id);
+      var fields = this.datasource.getFields(this.target.report.id);
+      this.options = this.datasource.getOptions(this.target.report.id);
+
       this.panel.report = this.target.report;
       this.panel.targets = [];
       var target;
-      if (this.fields) {
+      if (fields) {
         var self = this;
-        this.fields.forEach(function(field){
+        fields.forEach(function(field){
           target = {};
           target['refId'] = self.getNextQueryLetter();
           target['field'] = field;
