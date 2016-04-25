@@ -203,7 +203,7 @@ export class DashNavCtrl {
     };
 
     $scope.logout = function() {
-        $.ajax('logout', {method: "GET"}).
+        $.ajax('logout', {method: "DELETE"}).
         done(function() {
             window.location.assign($scope.xaasUrl);
         });
