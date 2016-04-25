@@ -113,8 +113,9 @@ export class DashNavCtrl {
         err.isHandled = true;
 
         $scope.appEvent('confirm-modal', {
-          title: 'Someone else has updated this dashboard!',
-          text: "Would you still like to save this dashboard?",
+          title: 'Conflict',
+          text: 'Someone else has updated this dashboard.',
+          text2: 'Would you still like to save this dashboard?',
           yesText: "Save & Overwrite",
           icon: "fa-warning",
           onConfirm: function() {
@@ -127,8 +128,9 @@ export class DashNavCtrl {
         err.isHandled = true;
 
         $scope.appEvent('confirm-modal', {
-          title: 'Another dashboard with the same name exists',
-          text: "Would you still like to save this dashboard?",
+          title: 'Conflict',
+          text: 'Dashboard with the same name exists.',
+          text2: 'Would you still like to save this dashboard?',
           yesText: "Save & Overwrite",
           icon: "fa-warning",
           onConfirm: function() {
@@ -140,7 +142,9 @@ export class DashNavCtrl {
 
     $scope.deleteDashboard = function() {
       $scope.appEvent('confirm-modal', {
-        title: 'Do you want to delete dashboard ' + $scope.dashboard.title + '?',
+        title: 'Delete dashboard',
+        text: 'Do you want to delete dashboard?',
+        text2: $scope.dashboard.title,
         icon: 'fa-trash',
         yesText: 'Delete',
         onConfirm: function() {
