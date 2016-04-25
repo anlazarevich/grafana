@@ -78,13 +78,13 @@ function (angular, app, _, $, L, ThreatControl, config) {
           // Scale value highly depends on number of hits in a given record if the value is too high then
           // a circle may have a huge radius that causes red screen on the map.
           // Probably scale should be calculated with more intelligent way.
-          var scale = 3;
+          var scale = 10000;
 
           for(var id in mapData) {
             var val = mapData[id];
             var coords = val.coords;
             // coords have the format as an array[latitude,longitude]
-            var circle = L.circle([coords[0], coords[1]], val.measure*scale, {
+            var circle = L.circle([coords[0], coords[1]], Math.log(val.measure +1)*scale, {
               color: 'red',
               fillColor: '#f03',
               fillOpacity: 0.5
