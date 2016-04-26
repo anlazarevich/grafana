@@ -47,13 +47,14 @@ function (iso2geo, isoCodeList) {
 
   function RedisDatasource(instanceSettings, $q, backendSrv) {
     var baseUrl = '/api/v1/redis',
-    res_secs = {'minute': 120*60, 'hour': 48*60*60, 'day': Number.POSITIVE_INFINITY};
+    res_secs = [{'name':'minute', 'range':120*60}, {'name':'hour', 'range':48*60*60},
+                {'name':'day', 'range':61*24*60*60} ,{'name':'month', 'range':Number.POSITIVE_INFINITY}];
     this.name = instanceSettings.name;
     this.type = instanceSettings.type;
     this.url = instanceSettings.url + baseUrl;
 
-    var watchListFields = [{'id':'CN','name':'China'}, {'id':'RU','name':'Russian Federation'},
-                           {'id':'SY','name':'Syrian Arab Republic'}, {'id':'IR','name':'Iran, Islamic Republic of'},
+    var watchListFields = [{'id':'CN','name':'China'}, {'id':'RU','name':'Russia'},
+                           {'id':'SY','name':'Syria'}, {'id':'IR','name':'Iran'},
                            {'id':'SI','name':'Slovenia'}],
         tagFields = [{'id':'DNST@IB','name':'DNST'},
                      {'id':'Bot@IID','name':'Bot'},
@@ -65,9 +66,13 @@ function (iso2geo, isoCodeList) {
                      {'id':'MalwareDownload@IID','name':'Malware Download'},
                      {'id':'Phishing@IID','name':'Phishing'},
                      {'id':'Scam@IID', 'name': 'Scam'},
-                     {'id':'UncategorizedThreat','name':'Uncategorized Threat'},
+                     {'id':'ExploitKit_Magnitude@IID','name':'ExploitKit Magnitude'},
+                     {'id':'Phishing_Phish@IID', 'name': 'Phishing Phish'},
+                     {'id':'UncategorizedThreat@IID','name':'Uncategorized Threat'},
                      {'id':'UnwantedContent@IID','name':'Unwanted Content'},
-                     {'id':'APT@IID','name':'APT'}];
+                     {'id':'APT@IID','name':'APT'},
+                     {'id':'ExploitKit_Magnitude@IID','name':'ExploitKit Magnitude'},
+                     {'id':'Phishing_Phish@IID', 'name': 'Phishing Phish'}];
 
     var reports  = {'geo_dest_watch_list':{ 'name':'Geographic Destination Watch List',
                       'fields': watchListFields,
@@ -105,6 +110,7 @@ function (iso2geo, isoCodeList) {
                          'table':clientStatDbTable},
                        'graph': { 'name':'Top Bad Trafic Users',
                          'dim':['client', 'tag'],
+                         'hide': true,
                          'transform': 'transform2GraphList',
                          'table':clientStatDbTable}
     };
@@ -123,7 +129,9 @@ function (iso2geo, isoCodeList) {
       }
       var res = [];
       for(var key in reports) {
-        res.push({'label':reports[key].name, 'id': key});
+        if(!reports[key].hide) {
+          res.push({'label':reports[key].name, 'id': key});
+        }
       }
       this.reportList = res;
       return res;
@@ -312,9 +320,11 @@ function (iso2geo, isoCodeList) {
           }
         }
       }
-      var sortFn = sorts[reports[target.report.id].sort];
-      if(sortFn) {
-        dp.sort(sortFn);
+      if (dp.length > 1) {
+        var sortFn = sorts[reports[target.report.id].sort];
+        if (sortFn) {
+          dp.sort(sortFn);
+        }
       }
       return {'target': target.field ? target.field.name : 'unamed field', 'datapoints': dp};
     }
@@ -354,12 +364,11 @@ function (iso2geo, isoCodeList) {
 
     function getResolution(range) {
       var delta = range.to.unix() - range.from.unix();
-      if(delta < res_secs.minute) {
-        return 'minute';
-      } else if(delta < res_secs.hour) {
-        return 'hour';
-      } else {
-        return 'day';
+      for(var i in res_secs) {
+        var entry = res_secs[i];
+        if(delta < entry.range) {
+          return entry.name;
+        }
       }
     }
 

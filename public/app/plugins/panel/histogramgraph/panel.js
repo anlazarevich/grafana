@@ -41,7 +41,7 @@ function (angular, _, $, template) {
         }
 
         scope.$on('render', function(event, renderData) {
-          if(panel.targets[0].qip) {
+          if(panel.targets.length > 0 && panel.targets[0].qip) {
             scope.$broadcast('render-graph', renderData);
           } else {
             var target = $('.nav.nav-tabs .active a', elem).attr('data-source');
