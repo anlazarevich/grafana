@@ -47,8 +47,8 @@ function (iso2geo, isoCodeList) {
 
   function RedisDatasource(instanceSettings, $q, backendSrv) {
     var baseUrl = '/api/v1/redis',
-    res_secs = [{'name':'minute', 'range':120*60}, {'name':'hour', 'range':48*60*60},
-                {'name':'day', 'range':61*24*60*60} ,{'name':'month', 'range':Number.POSITIVE_INFINITY}];
+    res_secs = [{'name':'minute', 'range':60*60}, {'name':'hour', 'range':24*60*60},
+                {'name':'day', 'range':30*24*60*60} ,{'name':'month', 'range':Number.POSITIVE_INFINITY}];
     this.name = instanceSettings.name;
     this.type = instanceSettings.type;
     this.url = instanceSettings.url + baseUrl;
