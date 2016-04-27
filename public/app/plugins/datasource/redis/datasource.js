@@ -366,7 +366,7 @@ function (iso2geo, isoCodeList) {
       var delta = range.to.unix() - range.from.unix();
       for(var i in res_secs) {
         var entry = res_secs[i];
-        if(delta < entry.range) {
+        if(delta <= entry.range) {
           return entry.name;
         }
       }
