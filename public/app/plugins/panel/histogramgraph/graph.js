@@ -44,8 +44,8 @@ function (angular, _, $, sigma) {
           g.nodes.push({
               id : rootNodeId,
               label : qip,
-              x : 0,
-              y : 0,
+              x : 0 + (Math.random()*0.001),
+              y : 0 + (Math.random()*0.001),
               size : 10,
               color : '#6E9ECE'
             });
