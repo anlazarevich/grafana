@@ -44,8 +44,8 @@ function (angular, _, $, sigma) {
           g.nodes.push({
               id : rootNodeId,
               label : qip,
-              x : Math.random(),
-              y : Math.random(),
+              x : 0,
+              y : 0,
               size : 10,
               color : '#6E9ECE'
             });
@@ -72,15 +72,15 @@ function (angular, _, $, sigma) {
             result = result.slice(0, maxChildNodes);
           }
           nodeSeq++;
-          result.forEach(function(row) {
+          result.forEach(function(row, i, a) {
             var nodeId = nodeSeq.toString();
             nodeSeq++;
             g.nodes
                   .push({
                     id : nodeId,
                     label : row.tag + '(' + row.count + ')',
-                    x : Math.random(),
-                    y : Math.random(),
+                    x: Math.cos(Math.PI * 2 * i / a.length),
+                    y: Math.sin(Math.PI * 2 * i / a.length),
                     size : 10,
                     color : '#FF0000'
                   });
@@ -156,7 +156,7 @@ function (angular, _, $, sigma) {
 //          }
 
           //TODO Move this property to panel configuration tab
-          var enableForce2Atlas = false;
+          var enableForce2Atlas = data.nodes.length > 20;
           if (enableForce2Atlas) {
             var forceConfig = {
               /**
@@ -175,7 +175,7 @@ function (angular, _, $, sigma) {
                * performances. It is necessary to apply it only after the
                * convergence of graph spatialization.
                */
-              adjustSizes : true,
+              adjustSizes : true
             };
             sigmaInstance.startForceAtlas2(forceConfig);
             $timeout(stopForceAtlas2, 3000);
