@@ -43,7 +43,7 @@ func accessForbidden(c *Context) {
 	}
 
 	c.SetCookie("redirect_to", url.QueryEscape(setting.AppSubUrl+c.Req.RequestURI), 0, setting.AppSubUrl+"/")
-	c.Redirect(setting.XaasUrl + "banner")
+	c.Redirect(setting.XaasUrl + "home")
 }
 
 func notAuthorized(c *Context) {
@@ -53,7 +53,7 @@ func notAuthorized(c *Context) {
 	}
 
 	c.SetCookie("redirect_to", url.QueryEscape(setting.AppSubUrl+c.Req.RequestURI), 0, setting.AppSubUrl+"/")
-	c.Redirect(setting.XaasUrl + "banner")
+	c.Redirect(setting.XaasUrl + "home")
 }
 
 func RoleAuth(roles ...m.RoleType) macaron.Handler {
