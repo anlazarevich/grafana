@@ -503,7 +503,7 @@ func readSessionConfig() {
 	SessionOptions.ProviderConfig = strings.Trim(sec.Key("provider_config").String(), "\" ")
 	SessionOptions.CookieName = sec.Key("cookie_name").MustString("grafana_sess")
 	XaasCookieName = sec.Key("xaas_cookie_name").String()
-	SessionOptions.CookiePath = AppSubUrl
+	SessionOptions.CookiePath = sec.Key("cookie_path").String()
 	SessionOptions.Secure = sec.Key("cookie_secure").MustBool()
 	SessionOptions.Gclifetime = Cfg.Section("session").Key("gc_interval_time").MustInt64(86400)
 	SessionOptions.Maxlifetime = Cfg.Section("session").Key("session_life_time").MustInt64(86400)
