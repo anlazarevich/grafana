@@ -10,13 +10,21 @@ module.exports = function(grunt) {
     var builder = new Builder('public_gen', 'public_gen/app/system.conf.js');
     console.log('Starting systemjs-builder');
 
+    // Note: it's not clear why Grafana dev team didn't include datasource modules to bundle
+    // fixing it
+//    var modules = [
+//      'app/app',
+//      'app/features/all',
+//      'app/plugins/panel/**/module',
+//      'app/plugins/datasource/graphite/module',
+//      'app/plugins/datasource/influxdb/module',
+//      'app/plugins/datasource/elasticsearch/module',
+//    ];
     var modules = [
       'app/app',
       'app/features/all',
       'app/plugins/panel/**/module',
-      'app/plugins/datasource/graphite/module',
-      'app/plugins/datasource/influxdb/module',
-      'app/plugins/datasource/elasticsearch/module',
+      'app/plugins/datasource/**/module'      
     ];
 
     var expression = modules.join(' + ');
