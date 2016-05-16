@@ -20,7 +20,7 @@ If it doesn't exist then create it.
 9. $ go run build.go build              # (or 'go build .')
 10. $ go run build.go pkg-deb       # Build packages for Ubuntu
 11. $ npm install
-12. $ grunt
+12. $ grunt [build]                 # Use build option for production environment only
 13. $ cd cd public_gen/vendor/sigma # Build packages for Sigma
 14. $ npm install                   # FIXME - This should be integrated into Grafana NPM/Grunt Tasks
 15. $ npm run build
