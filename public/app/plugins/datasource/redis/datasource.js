@@ -42,11 +42,13 @@ function (iso2geo, isoCodeList) {
 
   createGeoMap();
 
-  var queryStatDbTable = ':continent:country:severity:confidence:tag.count',
-      clientStatDbTable = ':client:severity:confidence:tag.count';
+  var queryStatDbTable = 'continent:country:severity:confidence:tag.count',
+      clientStatDbTable = 'client:severity:confidence:tag.count';
 
   function RedisDatasource(instanceSettings, $q, backendSrv) {
-    var baseUrl = '/api/v1/redis';
+    var baseUrl = '/api/v1/redis',
+    res_secs = [{'name':'minute', 'range':2*60*60}, {'name':'hour', 'range':48*60*60},
+                {'name':'day', 'range':61*24*60*60} ,{'name':'month', 'range':Number.POSITIVE_INFINITY}];
     this.name = instanceSettings.name;
     this.type = instanceSettings.type;
     this.url = instanceSettings.url + baseUrl;
@@ -172,115 +174,118 @@ function (iso2geo, isoCodeList) {
       });
     };
 
-    function transform2GeoWatchList(dp, item, target) {
-      for(var ts in item) {
-        var tsValue = item[ts];
-        ts *= 1000;// cast unix timestamp to milliseconds
-        var measure = 0;
-        for(var iso2Code in tsValue) {
-          var iso2CodeValue = tsValue[iso2Code];
-          for(var tag in iso2CodeValue) {
-            var tagValue = iso2CodeValue[tag];
-            if(tag != null && tag !== '' && iso2Code === target.field.id) {
-              measure += tagValue;
-            }
-          }
-        }
-        dp.push([measure, ts]);
-      }
-    }
-
-    function transform2WatchTotalTraffic(dp, item, target) {
-      for(var ts in item) {
-        var tsValue = item[ts];
-        ts *= 1000;// cast unix timestamp to milliseconds
-        var measure = 0;
-        for(var iso2Code in tsValue) {
-          var iso2CodeValue = tsValue[iso2Code];
-          for(var tag in iso2CodeValue) {
-            var tagValue = iso2CodeValue[tag];
-            if(tag != null && tag !== '') {
-              if(target.field.id === 'total_traffic') {
-                measure += tagValue;
-              } else if(watchListFilter(iso2Code)) {
-                measure += tagValue;
-              }
-            }
-          }
-        }
-        dp.push([measure, ts]);
-      }
-    }
-
-    function transform2TopSecurity(dp, item, target) {
-      for(var ts in item) {
-        var tsValue = item[ts];
-        ts *= 1000;// cast unix timestamp to milliseconds
-        var measure = 0;
-        for(var tag in tsValue) {
-          var tagValue = tsValue[tag];
-          if(target.field.id === tag) {
+    function transform2GeoWatchList(ts, item, target) {
+      ts *= 1000;// cast unix timestamp to milliseconds
+      var measure = 0;
+      for(var iso2Code in item) {
+        var iso2CodeValue = item[iso2Code];
+        for(var tag in iso2CodeValue) {
+          var tagValue = iso2CodeValue[tag];
+          if(tag != null && tag !== '' && iso2Code === target.field.id) {
             measure += tagValue;
           }
         }
-        dp.push([measure, ts]);
+      }
+      if(measure === 0) {
+        return null;
+      } else {
+        return [measure, ts];
       }
     }
 
-    function transform2KnowBadTraffic(dp, item, target) {
-      for(var ts in item) {
-        var tsValue = item[ts];
-        ts *= 1000;// cast unix timestamp to milliseconds
-        var measure = 0;
-        for(var tag in tsValue) {
-          var tagValue = tsValue[tag];
-          if(target.field.id === 'total_traffic') {
-            if(tag === 'Null') {
+    function transform2WatchTotalTraffic(ts, item, target) {
+      var measure = 0;
+      ts *= 1000;// cast unix timestamp to milliseconds
+      for(var iso2Code in item) {
+        var iso2CodeValue = item[iso2Code];
+        for(var tag in iso2CodeValue) {
+          var tagValue = iso2CodeValue[tag];
+          if(tag != null && tag !== '') {
+            if(target.field.id === 'total_traffic') {
               measure += tagValue;
-            }
-          } else {
-            if(tag !== 'Null') {
+            } else if(watchListFilter(iso2Code)) {
               measure += tagValue;
             }
           }
         }
-        dp.push([measure, ts]);
+      }
+      if(measure === 0) {
+        return null;
+      } else {
+        return [measure, ts];
       }
     }
 
-    function transform2GeoMap(dp, item) {
-      for(var ts in item) {
-        var tsValue = item[ts];
-        ts *= 1000;// cast unix timestamp to milliseconds
-        for(var iso2Code in tsValue) {
-          var iso2CodeValue = tsValue[iso2Code];
-          for(var tag in iso2CodeValue) {
-            var tagValue = iso2CodeValue[tag];
-            if(tag != null && tag !== '') {
-              var geo = geoMap[iso2Code];
-              if(!geo || !geo.coords) {
-                continue;
-              }
-              dp.push([tagValue, ts, geo.coords, iso2Code]);
-            }
+    function transform2TopSecurity(ts,item,target) {
+      ts *= 1000;// cast unix timestamp to milliseconds
+      var measure = 0;
+      for(var tag in item) {
+        var tagValue = item[tag];
+        if(target.field.id === tag) {
+          measure += tagValue;
+        }
+      }
+      if(measure === 0) {
+        return null;
+      } else {
+        return [measure, ts];
+      }
+    }
+
+    function transform2KnowBadTraffic(ts, item, target) {
+      var measure = 0;
+      ts *= 1000;// cast unix timestamp to milliseconds
+      for(var tag in item) {
+        var tagValue = item[tag];
+        if(target.field.id === 'total_traffic') {
+          if(tag === 'Null') {
+            measure += tagValue;
+          }
+        } else {
+          if(tag !== 'Null') {
+            measure += tagValue;
           }
         }
       }
-    }
-
-    function transform2TopClientList(dp, item) {
-      for(var qip in item) {
-        dp.push({qip: qip, count: item[qip]});
+      if(measure === 0) {
+        return null;
+      } else {
+        return [measure, ts];
       }
     }
 
-    function transform2GraphList(dp, item, target) {
-      for(var qip in item) {
-        if(qip !== target.qip) {
-          continue;
+    function transform2GeoMap(ts, item) {
+      var res = [];
+      ts *= 1000;// cast unix timestamp to milliseconds
+      for(var iso2Code in item) {
+        var iso2CodeValue = item[iso2Code];
+        for(var tag in iso2CodeValue) {
+          var tagValue = iso2CodeValue[tag];
+          if(tag != null && tag !== '') {
+            var geo = geoMap[iso2Code];
+            if(!geo || !geo.coords) {
+              continue;
+            }
+            res.push([tagValue, ts, geo.coords, iso2Code]);
+          }
         }
-        dp.push(item[qip]);
       }
+      if(res.length === 0) {
+        return null;
+      } else {
+        return res;
+      }
+    }
+
+    function transform2TopClientList(qip, count) {
+      return {qip: qip, count: count};
+    }
+
+    function transform2GraphList(qip, item, target) {
+      if(qip !== target.qip) {
+        return;
+      }
+      return item;
     }
 
     function watchListFilter(iso2Code) {
@@ -295,13 +300,24 @@ function (iso2geo, isoCodeList) {
 
     function transform(target, result) {
       var dp = [];
+      var value;
       for(var key in result) {
         var item = result[key];
         var transformFn = transformers[reports[target.report.id].transform];
         if(transformFn) {
-          transformFn(dp, item, target);
+          value = transformFn(key, item, target);
         } else { // none transformation is applied if transformation function is not defined or not found in the map
-          dp.push([key, item]);
+          value = [key, item];
+        }
+        if(value) {
+          // support multi value: array of arrays
+          if(Array.isArray(value[0])) {
+            for(var i in value) {
+              dp.push(value[i]);
+            }
+          } else {
+            dp.push(value);
+          }
         }
       }
       if (dp.length > 1) {
@@ -323,11 +339,12 @@ function (iso2geo, isoCodeList) {
 
     this.query = function(options) {
       var self = this;
+      var resolution = getResolution(options.range);
       if(!options.targets || options.targets.length === 0) {
         return emptyRs();
       }
       var target = options.targets[0];
-      var params = self._createParams(options.range, target);
+      var params = self._createParams(options.range, target, resolution);
       if(params) {
         return self._get('/search', params).then(function(response) {
           var result = response.data.data;
@@ -345,15 +362,27 @@ function (iso2geo, isoCodeList) {
       return $q.when(transform({}, {}));
     }
 
-    this._createParams = function(range, target) {
+    function getResolution(range) {
+      var delta = range.to.unix() - range.from.unix();
+      for(var i in res_secs) {
+        var entry = res_secs[i];
+        if(delta <= entry.range) {
+          return entry.name;
+        }
+      }
+    }
+
+    this._createParams = function(range, target, resolution) {
       if(!target.report) {
         return;
       }
       var report = reports[target.report.id];
+
       return {'t0': range.from.unix(),
           't1': range.to.unix(),
           'dims' : report.dim.toString(),
           'measures': 'count',
+          'time_bucket': resolution,
           'name': report.table
       };
     };
