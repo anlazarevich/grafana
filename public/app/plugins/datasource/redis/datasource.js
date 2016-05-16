@@ -45,6 +45,7 @@ function (iso2geo, isoCodeList) {
   var queryStatDbTable = 'continent:country:severity:confidence:tag.count',
       clientStatDbTable = 'client:severity:confidence:tag.count';
 
+  /** @ngInject */
   function RedisDatasource(instanceSettings, $q, backendSrv) {
     var baseUrl = '/api/v1/redis',
     res_secs = [{'name':'minute', 'range':2*60*60}, {'name':'hour', 'range':48*60*60},

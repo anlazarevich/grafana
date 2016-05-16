@@ -34,7 +34,8 @@
       "jquery.flot.stackpercent": "vendor/flot/jquery.flot.stackpercent",
       "jquery.flot.time": "vendor/flot/jquery.flot.time",
       "jquery.flot.crosshair": "vendor/flot/jquery.flot.crosshair",
-      "jquery.flot.fillbelow": "vendor/flot/jquery.flot.fillbelow"
+      "jquery.flot.fillbelow": "vendor/flot/jquery.flot.fillbelow",
+      "crypto-js": "vendor/crypto-js/md5.js"
     },
 
     packages: {
@@ -58,6 +59,10 @@
       'vendor/angular-mocks/angular-mocks.js': {
         format: 'global',
         deps: ['angular'],
+      },
+      'vendor/crypto-js/md5.js': {
+        format: 'global',
+        exports: 'CryptoJS'
       }
     }
   });
