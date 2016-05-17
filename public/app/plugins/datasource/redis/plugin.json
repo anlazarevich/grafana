@@ -1,6 +1,6 @@
 {
   "type": "datasource",
-  "name": "Redis",
+  "name": "Security Data Source",
   "id": "redis",
   "metrics": true,
   "annotations": true
