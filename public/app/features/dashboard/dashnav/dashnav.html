@@ -14,10 +14,7 @@
 	</span>
 </a>
 
-<ul class="nav pull-left dashnav-action-icons">
-    <li>
-		<a href="{{xaasUrl}}" bs-tooltip="'Back to XaaS portal'" data-placement="bottom">Home</a>
-	</li>
+<ul class="nav pull-left dashnav-action-icons">   
 	<li ng-show="::dashboardMeta.canStar">
 		<a class="pointer" ng-click="starDashboard()">
 			<i class="fa" ng-class="{'fa-star-o': !dashboardMeta.isStarred, 'fa-star': dashboardMeta.isStarred}" style="color: orange;"></i>
