@@ -29,7 +29,7 @@ export class DashNavCtrl {
           $scope.titleTooltip += '<br>Expires: &nbsp;' + moment(meta.expires).fromNow() + '<br>';
         }
       }
-      $scope.userEmail = $scope.contextSrv.user.email;
+      $scope.userEmail = $scope.contextSrv.user.name.split(' ')[0];
     };
 
     $scope.openEditView = function(editview) {
