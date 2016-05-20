@@ -19,6 +19,7 @@ export class DashNavCtrl {
       $scope.onAppEvent('quick-snapshot', $scope.quickSnapshot);
 
       $scope.showSettingsMenu = $scope.dashboardMeta.canEdit || $scope.contextSrv.isEditor;
+      $scope.xaasUrl = config.xaasUrl;
 
       if ($scope.dashboardMeta.isSnapshot) {
         $scope.showSettingsMenu = false;
