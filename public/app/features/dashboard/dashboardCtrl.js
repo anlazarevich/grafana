@@ -72,7 +72,7 @@ function (angular, $, config, moment) {
     };
 
     $scope.setWindowTitleAndTheme = function() {
-      window.document.title = $scope.dashboard.title;
+      window.document.title = config.window_title_prefix;
     };
 
     $scope.broadcastRefresh = function() {

@@ -97,7 +97,7 @@ export class SearchCtrl {
       });
 
       if (this.queryHasNoFilters()) {
-        this.results.unshift({ title: 'Home', url: config.appSubUrl + '/', type: 'dash-home' });
+        this.results.unshift({ title: 'Dashboard', url: config.appSubUrl + '/', type: 'dash-home' });
       }
     });
   }
