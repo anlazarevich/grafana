@@ -4,6 +4,12 @@
 3. npm (v2.5.0)
 4. grunt (v0.4.5).
 
+## Shared environment with Rails
+For shared environment with Rails setup environment variable:
+```
+SQLITE_PATH=/Users/seizadi/projects/rails-app/db/development.sqlite3
+```
+
 ##Build from source instructions:
 
 ```
