@@ -61,7 +61,6 @@ function ($) {
         }
 
         hoverIndex = this.findHoverIndexFromData(pos.x, series);
-        results.time = series.data[hoverIndex][0];
 
         if (series.stack) {
           if (panel.tooltip.value_type === 'individual') {
@@ -88,6 +87,7 @@ function ($) {
         }
       }
 
+      results.time = pos.x;
       return results;
     };
 
