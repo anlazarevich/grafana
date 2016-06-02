@@ -25,6 +25,16 @@ type Context struct {
 	AllowAnonymous bool
 }
 
+func PreventCache() macaron.Handler {
+	return func(c *macaron.Context) {
+		if c.Req.Method == "GET" {
+		  c.Resp.Header().Set("Pragma", "no-cache")
+		  c.Resp.Header().Set("Cache-Control", "no-cache")
+		  c.Resp.Header().Set("Expires", "-1")
+		}
+	}
+}	
+
 func GetContextHandler() macaron.Handler {
 	return func(c *macaron.Context) {
 		ctx := &Context{

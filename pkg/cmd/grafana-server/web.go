@@ -50,6 +50,8 @@ func newMacaron() *macaron.Macaron {
 
 	m.Use(middleware.GetContextHandler())
 	m.Use(middleware.Sessioner(&setting.SessionOptions))
+	// prevent GET responses caching in IE
+	m.Use(middleware.PreventCache())
 
 	return m
 }
