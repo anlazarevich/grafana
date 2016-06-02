@@ -1,11 +1,36 @@
 define([
   'angular',
   'lodash',
-  'require',
   'app/core/config',
+  'vendor/zero_clipboard'
 ],
-function (angular, _, require, config) {
+function (angular, _, config, ZeroClipboard) {
   'use strict';
+
+  ZeroClipboard.config({
+    swfPath: config.appSubUrl + '/public/vendor/zero_clipboard.swf'
+  });
+  // bug fixing: Internet Explorer locks up using ZeroClipboard on a Bootstrap Modal
+  // https://github.com/zeroclipboard/zeroclipboard/issues/159
+  if (/MSIE|Trident/.test(window.navigator.userAgent)) {
+    (function($) {
+      var zcClass = '.' + ZeroClipboard.config('containerClass');
+      var proto = $.fn.modal.Constructor.prototype;
+      proto.enforceFocus = function() {
+        $(document)
+          .off('focusin.bs.modal')  /* Guard against infinite focus loop */
+          .on('focusin.bs.modal', $.proxy(function(e) {
+            if (this.$element[0] !== e.target &&
+               !this.$element.has(e.target).length &&
+               /* Adding this final condition check is the only real change */
+               !$(e.target).closest(zcClass).length
+            ) {
+              this.$element.focus();
+            }
+          }, this));
+      };
+    })(window.jQuery);
+  }
 
   var module = angular.module('grafana.controllers');
 
@@ -84,12 +109,7 @@ function (angular, _, require, config) {
 
   module.directive('clipboardButton',function() {
     return function(scope, elem) {
-      require(['vendor/zero_clipboard'], function(ZeroClipboard) {
-        ZeroClipboard.config({
-          swfPath: config.appSubUrl + '/public/vendor/zero_clipboard.swf'
-        });
-        new ZeroClipboard(elem[0]);
-      });
+      new ZeroClipboard(elem[0]);
     };
   });
 
