@@ -100,10 +100,14 @@ function (iso2geo, isoCodeList) {
                               'dim':['timestamp','tag'],
                               'transform': 'transform2KnowBadTraffic',
                               'table':queryStatDbTable},
-                       'geo_map': { 'name':'Traffic Distribution on the world map',
+                       'geo_map': { 'name':'All Traffic Distribution on the world map',
                          'dim':['timestamp','country','tag'],
                          'transform': 'transform2GeoMap',
                          'table':queryStatDbTable},
+                       'detected_threat_geo_map': { 'name':'Detected Traffic Distribution on the world map',
+                           'dim':['timestamp','country','tag'],
+                           'transform': 'transform2DetectedThreatGeoMap',
+                           'table':queryStatDbTable},
                        'top_bad_traffic_users': { 'name':'Top Bad Trafic Users',
                          'dim':['client'],
                          'sort': 'orderByCount',
@@ -121,7 +125,7 @@ function (iso2geo, isoCodeList) {
     var transformers = {transform2GeoWatchList: transform2GeoWatchList, transform2WatchTotalTraffic: transform2WatchTotalTraffic,
         transform2TopSecurity: transform2TopSecurity, transform2KnowBadTraffic: transform2KnowBadTraffic,
         transform2GeoMap: transform2GeoMap, transform2TopClientList: transform2TopClientList,
-        transform2GraphList: transform2GraphList};
+        transform2GraphList: transform2GraphList, transform2DetectedThreatGeoMap: transform2DetectedThreatGeoMap};
     var sorts = {orderByCount: orderByCount, orderByTs: orderByTs};
 
     this.getReportList = function() {
@@ -263,6 +267,29 @@ function (iso2geo, isoCodeList) {
         for(var tag in iso2CodeValue) {
           var tagValue = iso2CodeValue[tag];
           if(tag != null && tag !== '') {
+            var geo = geoMap[iso2Code];
+            if(!geo || !geo.coords) {
+              continue;
+            }
+            res.push([tagValue, ts, geo.coords, iso2Code]);
+          }
+        }
+      }
+      if(res.length === 0) {
+        return null;
+      } else {
+        return res;
+      }
+    }
+
+    function transform2DetectedThreatGeoMap(ts, item) {
+      var res = [];
+      ts *= 1000;// cast unix timestamp to milliseconds
+      for(var iso2Code in item) {
+        var iso2CodeValue = item[iso2Code];
+        for(var tag in iso2CodeValue) {
+          var tagValue = iso2CodeValue[tag];
+          if(tag !== 'Null') {
             var geo = geoMap[iso2Code];
             if(!geo || !geo.coords) {
               continue;
