@@ -54,7 +54,7 @@ describeSharedTooltip("steppedLine false, stack false", function(ctx) {
   });
 
   it('should add time to results array', function() {
-    expect(ctx.results.time).to.be(10);
+    expect(ctx.results.time).to.be(11);
   });
 
   it('should set value and hoverIndex', function() {
