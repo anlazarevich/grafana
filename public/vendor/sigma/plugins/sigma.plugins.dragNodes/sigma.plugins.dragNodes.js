@@ -99,6 +99,8 @@
         _body.addEventListener('mouseup', nodeMouseUp);
 
         // Deactivate drag graph.
+        renderer.unbind('overNode', nodeMouseOver);
+        renderer.unbind('outNode', treatOutNode);
         renderer.settings({mouseEnabled: false, enableHovering: false});
         s.refresh();
       }
@@ -111,6 +113,8 @@
       _body.removeEventListener('mouseup', nodeMouseUp);
 
       // Activate drag graph.
+      renderer.bind('overNode', nodeMouseOver);
+      renderer.bind('outNode', treatOutNode);
       renderer.settings({mouseEnabled: true, enableHovering: true});
       s.refresh();
     };
@@ -125,8 +129,8 @@
 
       function executeNodeMouseMove() {
         var offset = calculateOffset(_container),
-            x = event.pageX - offset.left,
-            y = event.pageY - offset.top,
+            x = event.clientX - offset.left,
+            y = event.clientY - offset.top,
             cos = Math.cos(_camera.angle),
             sin = Math.sin(_camera.angle),
             nodes = s.graph.nodes(),
