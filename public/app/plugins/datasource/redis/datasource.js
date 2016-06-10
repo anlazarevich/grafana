@@ -47,33 +47,16 @@ function (iso2geo, isoCodeList) {
 
   /** @ngInject */
   function RedisDatasource(instanceSettings, $q, backendSrv) {
-    var baseUrl = '/api/v1/redis',
+    var baseUrl = '/api/v1/redis', threatMap, initDsState = 'start', nullTag = 'Null',
     res_secs = [{'name':'minute', 'range':2*60*60}, {'name':'hour', 'range':48*60*60},
                 {'name':'day', 'range':61*24*60*60} ,{'name':'month', 'range':Number.POSITIVE_INFINITY}];
     this.name = instanceSettings.name;
     this.type = instanceSettings.type;
-    this.url = instanceSettings.url + baseUrl;
+    var url = instanceSettings.url + baseUrl;
 
     var watchListFields = [{'id':'CN','name':'China'}, {'id':'RU','name':'Russia'},
                            {'id':'SY','name':'Syria'}, {'id':'IR','name':'Iran'},
-                           {'id':'SI','name':'Slovenia'}],
-        tagFields = [{'id':'DNST@IB','name':'DNST'},
-                     {'id':'Bot@IID','name':'Bot'},
-                     {'id':'ExploitKit@IID','name':'Exploit Kit'},
-                     {'id':'IllegalContent@IID','name':'Illegal Content'},
-                     {'id':'MaliciousNameserver@IID','name':'Malicious Nameserver'},
-                     {'id':'MalwareC2@IID','name':'Malware C2'},
-                     {'id':'MalwareC2DGA@IID','name':'Malware C2 DGA'},
-                     {'id':'MalwareDownload@IID','name':'Malware Download'},
-                     {'id':'Phishing@IID','name':'Phishing'},
-                     {'id':'Scam@IID', 'name': 'Scam'},
-                     {'id':'ExploitKit_Magnitude@IID','name':'ExploitKit Magnitude'},
-                     {'id':'Phishing_Phish@IID', 'name': 'Phishing Phish'},
-                     {'id':'UncategorizedThreat@IID','name':'Uncategorized Threat'},
-                     {'id':'UnwantedContent@IID','name':'Unwanted Content'},
-                     {'id':'APT@IID','name':'APT'},
-                     {'id':'ExploitKit_Magnitude@IID','name':'ExploitKit Magnitude'},
-                     {'id':'Phishing_Phish@IID', 'name': 'Phishing Phish'}];
+                           {'id':'SI','name':'Slovenia'}];
 
     var reports  = {'geo_dest_watch_list':{ 'name':'Geographic Destination Watch List',
                       'fields': watchListFields,
@@ -89,8 +72,7 @@ function (iso2geo, isoCodeList) {
                         'transform': 'transform2WatchTotalTraffic',
                         'table':queryStatDbTable},
                      'top_security_dest':{ 'name':'Top Security Destinations by type',
-                          'fields': tagFields,
-                          'dim': ['timestamp','tag'],
+                          'dim': ['tag', 'timestamp'],
                           'sort': 'orderByTs',
                           'transform': 'transform2TopSecurity',
                           'table':queryStatDbTable},
@@ -158,17 +140,17 @@ function (iso2geo, isoCodeList) {
       return report.options ? report.options : report.fields;
     };
 
-    this._get = function(action, params) {
+    function fetchData(action, params) {
       return backendSrv.datasourceRequest({
         method: 'GET',
-        url: this.url + action,
+        url: url + action,
         params: params,
         withCredentials: true
       });
-    };
+    }
 
     this.testDatasource = function() {
-      return this._get('/catalog').then(function() {
+      return fetchData('/catalog').then(function() {
         return { status: "success", message: "Data source is working", title: "Success" };
       }, function(err) {
         if (err.data && err.data.error) {
@@ -221,20 +203,19 @@ function (iso2geo, isoCodeList) {
       }
     }
 
-    function transform2TopSecurity(ts,item,target) {
-      ts *= 1000;// cast unix timestamp to milliseconds
-      var measure = 0;
-      for(var tag in item) {
-        var tagValue = item[tag];
-        if(target.field.id === tag) {
-          measure += tagValue;
+    function transform2TopSecurity(data) {
+      var res = [];
+      for(var tag in data) {
+        if(tag === nullTag) {
+          continue;
         }
+        var dp  = [], tagItem = data[tag];
+        for(var ts in tagItem) {
+          dp.push([tagItem[ts], ts * 1000]);
+        }
+        res.push({'target': threatMap[tag], 'datapoints': dp});
       }
-      if(measure === 0) {
-        return null;
-      } else {
-        return [measure, ts];
-      }
+      return res;
     }
 
     function transform2KnowBadTraffic(ts, item, target) {
@@ -243,11 +224,11 @@ function (iso2geo, isoCodeList) {
       for(var tag in item) {
         var tagValue = item[tag];
         if(target.field.id === 'total_traffic') {
-          if(tag === 'Null') {
+          if(tag === nullTag) {
             measure += tagValue;
           }
         } else {
-          if(tag !== 'Null') {
+          if(tag !== nullTag) {
             measure += tagValue;
           }
         }
@@ -289,7 +270,7 @@ function (iso2geo, isoCodeList) {
         var iso2CodeValue = item[iso2Code];
         for(var tag in iso2CodeValue) {
           var tagValue = iso2CodeValue[tag];
-          if(tag !== 'Null') {
+          if(tag !== nullTag) {
             var geo = geoMap[iso2Code];
             if(!geo || !geo.coords) {
               continue;
@@ -366,19 +347,22 @@ function (iso2geo, isoCodeList) {
     }
 
     this.query = function(options) {
-      var self = this;
       var resolution = getResolution(options.range);
       if(!options.targets || options.targets.length === 0) {
         return emptyRs();
       }
       var target = options.targets[0];
-      var params = self._createParams(options.range, target, resolution);
+      var params = createParams(options.range, target, resolution);
       if(params) {
-        return self._get('/search', params).then(function(response) {
-          var result = response.data.data;
-          var rs = options.targets.map(function(target) {
-            return transform(target, result);
-          });
+        return $q.all([fetchData('/search', params), initDatasource()]).then(function(response) {
+          var result = response[0].data.data, rs;
+          if(target.report.id === 'top_security_dest') {
+            rs = transform2TopSecurity(result);
+          } else {
+            rs = options.targets.map(function(target) {
+              return transform(target, result);
+            });
+          }
           return {data: rs};
         });
       } else {
@@ -400,7 +384,7 @@ function (iso2geo, isoCodeList) {
       }
     }
 
-    this._createParams = function(range, target, resolution) {
+    function createParams(range, target, resolution) {
       if(!target.report) {
         return;
       }
@@ -413,7 +397,7 @@ function (iso2geo, isoCodeList) {
           'time_bucket': resolution,
           'name': report.table
       };
-    };
+    }
 
     this.metricFindQuery = function() {
       return $q.when([]);
@@ -422,6 +406,19 @@ function (iso2geo, isoCodeList) {
     this.annotationQuery = function() {
       return $q.when([]);
     };
+
+    function initDatasource() {
+      if(initDsState === 'completed') {
+        return $q.when();
+      }
+      if(initDsState === 'start') {
+        initDsState = 'inprogress';
+        return fetchData('/threat_categories').then(function(response) {
+          threatMap = response.data.data;
+          initDsState = 'completed';
+        });
+      }
+    }
 
   }
 
