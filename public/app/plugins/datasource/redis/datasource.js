@@ -48,6 +48,7 @@ function (iso2geo, isoCodeList) {
   /** @ngInject */
   function RedisDatasource(instanceSettings, $q, backendSrv) {
     var baseUrl = '/api/v1/redis', threatMap, initDsState = 'start', nullTag = 'Null',
+    totalEventsTag = 'TotalEvents@IB',
     res_secs = [{'name':'minute', 'range':2*60*60}, {'name':'hour', 'range':48*60*60},
                 {'name':'day', 'range':61*24*60*60} ,{'name':'month', 'range':Number.POSITIVE_INFINITY}];
     this.name = instanceSettings.name;
@@ -168,7 +169,7 @@ function (iso2geo, isoCodeList) {
         var iso2CodeValue = item[iso2Code];
         for(var tag in iso2CodeValue) {
           var tagValue = iso2CodeValue[tag];
-          if(tag != null && tag !== '' && iso2Code === target.field.id) {
+          if(iso2Code === target.field.id) {
             measure += tagValue;
           }
         }
@@ -187,12 +188,10 @@ function (iso2geo, isoCodeList) {
         var iso2CodeValue = item[iso2Code];
         for(var tag in iso2CodeValue) {
           var tagValue = iso2CodeValue[tag];
-          if(tag != null && tag !== '') {
-            if(target.field.id === 'total_traffic') {
-              measure += tagValue;
-            } else if(watchListFilter(iso2Code)) {
-              measure += tagValue;
-            }
+          if(target.field.id === 'total_traffic') {
+            measure += tagValue;
+          } else if(watchListFilter(iso2Code)) {
+            measure += tagValue;
           }
         }
       }
@@ -206,7 +205,7 @@ function (iso2geo, isoCodeList) {
     function transform2TopSecurity(data) {
       var res = [];
       for(var tag in data) {
-        if(tag === nullTag) {
+        if(tag === nullTag || tag === totalEventsTag) {
           continue;
         }
         var dp  = [], tagItem = data[tag];
@@ -222,6 +221,9 @@ function (iso2geo, isoCodeList) {
       var measure = 0;
       ts *= 1000;// cast unix timestamp to milliseconds
       for(var tag in item) {
+        if(tag === totalEventsTag) {
+          continue;
+        }
         var tagValue = item[tag];
         if(target.field.id === 'total_traffic') {
           if(tag === nullTag) {
@@ -270,7 +272,7 @@ function (iso2geo, isoCodeList) {
         var iso2CodeValue = item[iso2Code];
         for(var tag in iso2CodeValue) {
           var tagValue = iso2CodeValue[tag];
-          if(tag !== nullTag) {
+          if(tag !== nullTag && tag !== totalEventsTag) {
             var geo = geoMap[iso2Code];
             if(!geo || !geo.coords) {
               continue;
