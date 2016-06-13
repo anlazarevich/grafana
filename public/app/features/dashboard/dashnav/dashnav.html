@@ -14,7 +14,10 @@
 	</span>
 </a>
 
-<ul class="nav pull-left dashnav-action-icons">   
+<ul class="nav pull-left dashnav-action-icons">
+	<li>
+        <a style="width: 150px; font-size: 14px;" href="{{xaasUrl}}" bs-tooltip="'Back to DNS Analytics Portal'" data-placement="bottom">Back to reports</a>
+    </li>   
 	<li ng-show="::dashboardMeta.canStar">
 		<a class="pointer" ng-click="starDashboard()">
 			<i class="fa" ng-class="{'fa-star-o': !dashboardMeta.isStarred, 'fa-star': dashboardMeta.isStarred}" style="color: orange;"></i>
