@@ -188,7 +188,7 @@ function (iso2geo, isoCodeList) {
         var iso2CodeValue = item[iso2Code];
         for(var tag in iso2CodeValue) {
           var tagValue = iso2CodeValue[tag];
-          if(target.field.id === 'total_traffic') {
+          if(target.field.id === 'total_traffic' && tag === totalEventsTag) {
             measure += tagValue;
           } else if(watchListFilter(iso2Code)) {
             measure += tagValue;
