@@ -21,9 +21,9 @@ function (angular, app, _, $, L, ThreatControl, config) {
         var ctrl = scope.ctrl;
         var panel = ctrl.panel;
 
-        scope.$on('render', function(event, renderData) {
+        ctrl.events.on('render', function(renderData) {
           if(renderData) {
-            data = renderData.data;
+            data = renderData;
             render();
           } else if(!data) {
             return;

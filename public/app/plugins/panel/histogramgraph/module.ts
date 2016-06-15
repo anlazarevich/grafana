@@ -24,49 +24,15 @@ class HistogramGraphCtrl extends MetricsPanelCtrl {
   /** @ngInject */
   constructor($scope, $injector, private annotationsSrv) {
     super($scope, $injector);
+    this.events.on('data-received', this.render.bind(this));
+    this.events.on('data-error', this.onDataError.bind(this));
+    this.events.on('data-snapshot-load', this.render.bind(this));
+
     _.defaults(this.panel, panelDefaults);
   }
 
-  initEditMode() {
-    super.initEditMode();
-    this.icon = "fa fa-dashboard";
-  }
-
-  refreshData(datasource) {
-    this.annotationsPromise = this.annotationsSrv.getAnnotations(this.dashboard);
-
-    return this.issueQueries(datasource)
-    .then(res => this.dataHandler(res))
-    .catch(err => {
-      this.render([]);
-      throw err;
-    });
-  }
-
-  loadSnapshot(snapshotData) {
-    this.annotationsPromise = this.annotationsSrv.getAnnotations(this.dashboard);
-    this.dataHandler(snapshotData);
-  }
-
-  dataHandler(results) {
-    // png renderer returns just a url
-    if (_.isString(results)) {
-      this.render(results);
-      return;
-    }
-
-    this.annotationsPromise.then(annotations => {
-      this.loading = false;
-      results.annotations = annotations;
-      this.render(results);
-    }, () => {
-      this.loading = false;
-      this.render(results);
-    });
-  };
-
-  render(data?: any) {
-    this.broadcastRender(data);
+  onDataError(err) {
+    this.render([]);
   }
 
 }

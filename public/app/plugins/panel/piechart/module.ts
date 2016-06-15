@@ -40,15 +40,23 @@ class PieChartCtrl extends MetricsPanelCtrl {
   /** @ngInject */
   constructor($scope, $injector, private annotationsSrv) {
     super($scope, $injector);
+
+    this.events.on('data-received', this.onDataReceived.bind(this));
+    this.events.on('data-error', this.onDataError.bind(this));
+    this.events.on('data-snapshot-load', this.onDataReceived.bind(this));
+    this.events.on('init-edit-mode', this.onInitEditMode.bind(this));
+
     _.defaults(this.panel, panelDefaults);
     _.defaults(this.panel.legend, panelDefaults.legend);
 
     this.colors = $scope.$root.colors;
   }
 
-  initEditMode() {
-    super.initEditMode();
-    this.icon = "fa fa-dashboard";
+  onDataError(err) {
+    this.render([]);
+  }
+
+  onInitEditMode() {
     this.unitFormats = kbn.getUnitFormats();
   }
 
@@ -57,21 +65,8 @@ class PieChartCtrl extends MetricsPanelCtrl {
     this.render();
   }
 
-  refreshData(datasource) {
-    return this.issueQueries(datasource)
-    .then(res => this.dataHandler(res))
-    .catch(err => {
-      this.render([]);
-      throw err;
-    });
-  }
-
-  loadSnapshot(snapshotData) {
-    this.dataHandler(snapshotData);
-  }
-
-  dataHandler(results) {
-    this.series = _.map(results.data, (series, i) => this.seriesHandler(series, i));
+  onDataReceived(results) {
+    this.series = _.map(results, (series, i) => this.seriesHandler(series, i));
     this.render(this.series);
   }
 
@@ -86,10 +81,6 @@ class PieChartCtrl extends MetricsPanelCtrl {
     });
     series.flotpairs = series.getFlotPairs(this.panel.nullPointMode);
     return series;
-  }
-
-  render(data?: any) {
-    this.broadcastRender(data);
   }
 
 }

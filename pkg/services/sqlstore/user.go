@@ -297,7 +297,6 @@ func GetSignedInUser(query *m.GetSignedInUserQuery) error {
 		user.OrgRole = m.ROLE_EDITOR
 	}
 
-	user.Theme = "light"
 	query.Result = &user
 	return err
 }

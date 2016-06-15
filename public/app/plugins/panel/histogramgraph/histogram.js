@@ -27,7 +27,7 @@ function (angular, app, _, $) {
 
         init();
 
-        scope.$on('render-histogram', function(event, renderData) {
+        ctrl.events.on('render-histogram', function(renderData) {
           if(renderData) {
             data = transform(renderData);
             renderPaginator(data.length);
@@ -42,7 +42,7 @@ function (angular, app, _, $) {
         });
 
         function transform(data) {
-          return data.data[0].datapoints;
+          return data[0].datapoints;
         }
 
         function setHistogramHeight() {

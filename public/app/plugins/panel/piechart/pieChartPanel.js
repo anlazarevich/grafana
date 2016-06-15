@@ -18,7 +18,7 @@ function (angular, _, $) {
         var ctrl = scope.ctrl;
         var panel = ctrl.panel;
 
-        scope.$on('render', function(event, renderData) {
+        ctrl.events.on('render', function(renderData) {
           if(!renderData) {
             return;
           }

@@ -19,9 +19,9 @@ function (angular, _, $, sigma) {
         var ctrl = scope.ctrl;
         var panel = ctrl.panel, width, height;
 
-        scope.$on('render-graph', function(event, renderData) {
+        ctrl.events.on('render-graph', function(renderData) {
           if(renderData) {
-            data = toGraph(renderData.data);
+            data = toGraph(renderData);
             render();
           } else if(!data) {
             return;

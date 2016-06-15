@@ -48,6 +48,16 @@ export class RedisQueryCtrl extends QueryCtrl {
       this.refresh();
   }
 
+  getNextQueryLetter() {
+    var letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+
+    return _.find(letters, refId => {
+      return _.every(this.panel.targets, function(other) {
+        return other.refId !== refId;
+      });
+    });
+  }
+
   isHidden() {
       return this.panel.report && !this.target.hidden;
   }
