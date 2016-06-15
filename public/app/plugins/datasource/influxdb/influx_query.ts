@@ -11,6 +11,7 @@ export default class InfluxQuery {
   templateSrv: any;
   scopedVars: any;
 
+  /** @ngInject */
   constructor(target, templateSrv?, scopedVars?) {
     this.target = target;
     this.templateSrv = templateSrv;
@@ -151,7 +152,9 @@ export default class InfluxQuery {
       if (interpolate) {
         value = this.templateSrv.replace(value, this.scopedVars);
       }
-      value = "'" + value.replace('\\', '\\\\') + "'";
+      if (operator !== '>' && operator !== '<') {
+        value = "'" + value.replace('\\', '\\\\') + "'";
+      }
     } else if (interpolate){
       value = this.templateSrv.replace(value, this.scopedVars, 'regex');
     }
@@ -159,12 +162,14 @@ export default class InfluxQuery {
     return str + '"' + tag.key + '" ' + operator + ' ' + value;
   }
 
-  getMeasurementAndPolicy() {
+  getMeasurementAndPolicy(interpolate) {
     var policy = this.target.policy;
-    var measurement = this.target.measurement;
+    var measurement = this.target.measurement || 'measurement';
 
     if (!measurement.match('^/.*/')) {
       measurement = '"' + measurement+ '"';
+    } else if (interpolate) {
+      measurement = this.templateSrv.replace(measurement, this.scopedVars, 'regex');
     }
 
     if (policy !== 'default') {
@@ -187,10 +192,6 @@ export default class InfluxQuery {
       }
     }
 
-    if (!target.measurement) {
-      throw {message: "Metric measurement is missing"};
-    }
-
     var query = 'SELECT ';
     var i, y;
     for (i = 0; i < this.selectModels.length; i++) {
@@ -207,7 +208,7 @@ export default class InfluxQuery {
       query += selectText;
     }
 
-    query += ' FROM ' + this.getMeasurementAndPolicy() + ' WHERE ';
+    query += ' FROM ' + this.getMeasurementAndPolicy(interpolate) + ' WHERE ';
     var conditions = _.map(target.tags, (tag, index) => {
       return this.renderTagCondition(tag, index, interpolate);
     });

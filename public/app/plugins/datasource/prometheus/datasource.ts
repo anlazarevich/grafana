@@ -43,7 +43,7 @@ export function PrometheusDatasource(instanceSettings, $q, backendSrv, templateS
     return value.replace(/[\\^$*+?.()|[\]{}]/g, '\\\\$&');
   }
 
-  function interpolateQueryExpr(value, variable, defaultFormatFn) {
+  this.interpolateQueryExpr = function(value, variable, defaultFormatFn) {
     // if no multi or include all do not regexEscape
     if (!variable.multi && !variable.includeAll) {
       return value;
@@ -59,18 +59,22 @@ export function PrometheusDatasource(instanceSettings, $q, backendSrv, templateS
 
   // Called once per panel (graph)
   this.query = function(options) {
+    var self = this;
     var start = getPrometheusTime(options.range.from, false);
     var end = getPrometheusTime(options.range.to, true);
 
     var queries = [];
+    var activeTargets = [];
+
     options = _.clone(options);
     _.each(options.targets, _.bind(function(target) {
       if (!target.expr || target.hide) {
         return;
       }
+      activeTargets.push(target);
 
       var query: any = {};
-      query.expr = templateSrv.replace(target.expr, options.scopedVars, interpolateQueryExpr);
+      query.expr = templateSrv.replace(target.expr, options.scopedVars, self.interpolateQueryExpr);
 
       var interval = target.interval || options.interval;
       var intervalFactor = target.intervalFactor || 1;
@@ -96,7 +100,6 @@ export function PrometheusDatasource(instanceSettings, $q, backendSrv, templateS
       return this.performTimeSeriesQuery(query, start, end);
     }, this));
 
-    var self = this;
     return $q.all(allQueryPromise)
     .then(function(allResponse) {
       var result = [];
@@ -109,7 +112,7 @@ export function PrometheusDatasource(instanceSettings, $q, backendSrv, templateS
         delete self.lastErrors.query;
 
         _.each(response.data.data.result, function(metricData) {
-          result.push(self.transformMetricData(metricData, options.targets[index], start, end));
+          result.push(self.transformMetricData(metricData, activeTargets[index], start, end));
         });
       });
 
@@ -157,7 +160,7 @@ export function PrometheusDatasource(instanceSettings, $q, backendSrv, templateS
 
     var interpolated;
     try {
-      interpolated = templateSrv.replace(expr);
+      interpolated = templateSrv.replace(expr, {}, this.interpolateQueryExpr);
     } catch (err) {
       return $q.reject(err);
     }

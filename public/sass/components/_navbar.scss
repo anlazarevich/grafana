@@ -134,6 +134,11 @@
     font-size: 20px;
     line-height: 8px;
   }
+
+  > img {
+    max-width: 27px;
+    max-height: 27px;
+  }
 }
 
 .sidemenu-pinned {

@@ -16,9 +16,12 @@ func init() {
 }
 
 func GetPluginSettings(query *m.GetPluginSettingsQuery) error {
-	sess := x.Where("org_id=?", query.OrgId)
+	sql := `SELECT org_id, plugin_id, enabled, pinned
+					FROM plugin_setting
+					WHERE org_id=?`
 
-	query.Result = make([]*m.PluginSetting, 0)
+	sess := x.Sql(sql, query.OrgId)
+	query.Result = make([]*m.PluginSettingInfoDTO, 0)
 	return sess.Find(&query.Result)
 }
 
@@ -58,7 +61,6 @@ func UpdatePluginSetting(cmd *m.UpdatePluginSettingCmd) error {
 			for key, data := range cmd.SecureJsonData {
 				pluginSetting.SecureJsonData[key] = util.Encrypt([]byte(data), setting.SecretKey)
 			}
-			pluginSetting.SecureJsonData = cmd.GetEncryptedJsonData()
 			pluginSetting.Updated = time.Now()
 			pluginSetting.Enabled = cmd.Enabled
 			pluginSetting.JsonData = cmd.JsonData

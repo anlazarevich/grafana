@@ -19,13 +19,9 @@ module.exports = function(config) {
       cwd: './node_modules',
       expand: true,
       src: [
-        'angular2/bundles/*.js',
-        'angular2/*.d.ts',
-        'angular2/typings/**/*',
-        'angular2/manual_typings/**/*',
+        'eventemitter3/*.js',
         'systemjs/dist/*.js',
         'es6-promise/**/*',
-        'es5-shim/*.js',
         'es6-shim/*.js',
         'reflect-metadata/*.js',
         'reflect-metadata/*.ts',
@@ -33,6 +29,8 @@ module.exports = function(config) {
         'rxjs/**/*',
         'tether/**/*',
         'tether-drop/**/*',
+        'tether-drop/**/*',
+        'remarkable/dist/*',
       ],
       dest: '<%= srcDir %>/vendor/npm'
     }

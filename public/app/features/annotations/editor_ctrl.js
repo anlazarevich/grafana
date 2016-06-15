@@ -30,7 +30,7 @@ function (angular, _, $) {
     $scope.datasourceChanged = function() {
       return datasourceSrv.get($scope.currentAnnotation.datasource).then(function(ds) {
         $scope.currentDatasource = ds;
-        $scope.currentAnnotation.datasource = ds.name;
+        $scope.currentAnnotation.datasource = $scope.currentAnnotation.datasource;
       });
     };
 
@@ -45,6 +45,7 @@ function (angular, _, $) {
 
     $scope.reset = function() {
       $scope.currentAnnotation = angular.copy(annotationDefaults);
+      $scope.currentAnnotation.datasource = $scope.datasources[0].name;
       $scope.currentIsNew = true;
       $scope.datasourceChanged();
     };

@@ -142,8 +142,8 @@ export class DashNavCtrl {
 
     $scope.deleteDashboard = function() {
       $scope.appEvent('confirm-modal', {
-        title: 'Delete dashboard',
-        text: 'Do you want to delete dashboard?',
+        title: 'Delete',
+        text: 'Do you want to delete this dashboard?',
         text2: $scope.dashboard.title,
         icon: 'fa-trash',
         yesText: 'Delete',
@@ -178,7 +178,7 @@ export class DashNavCtrl {
       var clone = $scope.dashboard.getSaveModelClone();
       var blob = new Blob([angular.toJson(clone, true)], { type: "application/json;charset=utf-8" });
       var wnd: any = window;
-      wnd.saveAs(blob, $scope.dashboard.title + '-' + new Date().getTime());
+      wnd.saveAs(blob, $scope.dashboard.title + '-' + new Date().getTime() + '.json');
     };
 
     $scope.snapshot = function() {

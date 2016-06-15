@@ -59,7 +59,7 @@ func getFrontendSettingsMap(c *middleware.Context) (map[string]interface{}, erro
 			defaultDatasource = ds.Name
 		}
 
-		if len(ds.JsonData) > 0 {
+		if ds.JsonData != nil {
 			dsMap["jsonData"] = ds.JsonData
 		}
 
@@ -138,9 +138,11 @@ func getFrontendSettingsMap(c *middleware.Context) (map[string]interface{}, erro
 		"authProxyEnabled":  setting.AuthProxyEnabled,
 		"xaasUrl":           setting.XaasUrl,
 		"buildInfo": map[string]interface{}{
-			"version":    setting.BuildVersion,
-			"commit":     setting.BuildCommit,
-			"buildstamp": setting.BuildStamp,
+			"version":       setting.BuildVersion,
+			"commit":        setting.BuildCommit,
+			"buildstamp":    setting.BuildStamp,
+			"latestVersion": plugins.GrafanaLatestVersion,
+			"hasUpdate":     plugins.GrafanaHasUpdate,
 		},
 	}
 

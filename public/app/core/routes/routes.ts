@@ -49,20 +49,22 @@ function setupAngularRoutes($routeProvider, $locationProvider) {
     controller : 'DashboardImportCtrl',
   })
   .when('/datasources', {
-    templateUrl: 'public/app/features/datasources/partials/list.html',
+    templateUrl: 'public/app/features/plugins/partials/ds_list.html',
     controller : 'DataSourcesCtrl',
     controllerAs: 'ctrl',
-    resolve: loadOrgBundle,
+    resolve: loadPluginsBundle,
   })
   .when('/datasources/edit/:id', {
-    templateUrl: 'public/app/features/datasources/partials/edit.html',
+    templateUrl: 'public/app/features/plugins/partials/ds_edit.html',
     controller : 'DataSourceEditCtrl',
-    resolve: loadOrgBundle,
+    controllerAs: 'ctrl',
+    resolve: loadPluginsBundle,
   })
   .when('/datasources/new', {
-    templateUrl: 'public/app/features/datasources/partials/edit.html',
+    templateUrl: 'public/app/features/plugins/partials/ds_edit.html',
     controller : 'DataSourceEditCtrl',
-    resolve: loadOrgBundle,
+    controllerAs: 'ctrl',
+    resolve: loadPluginsBundle,
   })
   .when('/org', {
     templateUrl: 'public/app/features/org/partials/orgDetails.html',
@@ -86,16 +88,20 @@ function setupAngularRoutes($routeProvider, $locationProvider) {
     resolve: loadOrgBundle,
   })
   .when('/profile', {
-    templateUrl: 'public/app/features/profile/partials/profile.html',
+    templateUrl: 'public/app/features/org/partials/profile.html',
     controller : 'ProfileCtrl',
+    controllerAs: 'ctrl',
+    resolve: loadOrgBundle,
   })
   .when('/profile/password', {
-    templateUrl: 'public/app/features/profile/partials/password.html',
+    templateUrl: 'public/app/features/org/partials/change_password.html',
     controller : 'ChangePasswordCtrl',
+    resolve: loadOrgBundle,
   })
   .when('/profile/select-org', {
-    templateUrl: 'public/app/features/profile/partials/select_org.html',
+    templateUrl: 'public/app/features/org/partials/select_org.html',
     controller : 'SelectOrgCtrl',
+    resolve: loadOrgBundle,
   })
   // ADMIN
   .when('/admin', {
@@ -166,19 +172,19 @@ function setupAngularRoutes($routeProvider, $locationProvider) {
     controllerAs: 'ctrl',
   })
   .when('/plugins', {
-    templateUrl: 'public/app/features/plugins/partials/list.html',
+    templateUrl: 'public/app/features/plugins/partials/plugin_list.html',
     controller: 'PluginListCtrl',
     controllerAs: 'ctrl',
     resolve: loadPluginsBundle,
   })
   .when('/plugins/:pluginId/edit', {
-    templateUrl: 'public/app/features/plugins/partials/edit.html',
+    templateUrl: 'public/app/features/plugins/partials/plugin_edit.html',
     controller: 'PluginEditCtrl',
     controllerAs: 'ctrl',
     resolve: loadPluginsBundle,
   })
   .when('/plugins/:pluginId/page/:slug', {
-    templateUrl: 'public/app/features/plugins/partials/page.html',
+    templateUrl: 'public/app/features/plugins/partials/plugin_page.html',
     controller: 'AppPageCtrl',
     controllerAs: 'ctrl',
     resolve: loadPluginsBundle,

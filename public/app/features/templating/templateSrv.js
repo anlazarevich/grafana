@@ -35,14 +35,27 @@ function (angular, _) {
     };
 
     function regexEscape(value) {
-      return value.replace(/[\\^$*+?.()|[\]{}]/g, '\\$&');
+      return value.replace(/[\\^$*+?.()|[\]{}\/]/g, '\\$&');
     }
 
     function luceneEscape(value) {
       return value.replace(/([\!\*\+\-\=<>\s\&\|\(\)\[\]\{\}\^\~\?\:\\/"])/g, "\\$1");
     }
 
+    this.luceneFormat = function(value) {
+      if (typeof value === 'string') {
+        return luceneEscape(value);
+      }
+      var quotedValues = _.map(value, function(val) {
+        return '\"' + luceneEscape(val) + '\"';
+      });
+      return '(' + quotedValues.join(' OR ') + ')';
+    };
+
     this.formatValue = function(value, format, variable) {
+      // for some scopedVars there is no variable
+      variable = variable || {};
+
       if (typeof format === 'function') {
         return format(value, variable, this.formatValue);
       }
@@ -54,18 +67,15 @@ function (angular, _) {
           }
 
           var escapedValues = _.map(value, regexEscape);
-          return escapedValues.join('|');
+          return '(' + escapedValues.join('|') + ')';
         }
         case "lucene": {
-          if (typeof value === 'string') {
-            return luceneEscape(value);
-          }
-          var quotedValues = _.map(value, function(val) {
-            return '\"' + luceneEscape(val) + '\"';
-          });
-          return '(' + quotedValues.join(' OR ') + ')';
+          return this.luceneFormat(value, format, variable);
         }
         case "pipe": {
+          if (typeof value === 'string') {
+            return value;
+          }
           return value.join('|');
         }
         default:  {
@@ -91,7 +101,11 @@ function (angular, _) {
       if (!str) {
         return false;
       }
-      return str.indexOf('$' + variableName) !== -1 || str.indexOf('[[' + variableName + ']]') !== -1;
+
+      variableName = regexEscape(variableName);
+      var findVarRegex = new RegExp('\\$(' + variableName + ')(?:\\W|$)|\\[\\[(' + variableName + ')\\]\\]', 'g');
+      var match = findVarRegex.exec(str);
+      return match !== null;
     };
 
     this.highlightVariablesAsHtml = function(str) {
@@ -126,15 +140,16 @@ function (angular, _) {
 
       return target.replace(this._regex, function(match, g1, g2) {
         variable = self._index[g1 || g2];
-        if (!variable) {
-          return match;
-        }
 
         if (scopedVars) {
           value = scopedVars[g1 || g2];
           if (value) {
             return self.formatValue(value.value, format, variable);
           }
+        }
+
+        if (!variable) {
+          return match;
         }
 
         systemValue = self._grafanaVariables[variable.current.value];
@@ -145,6 +160,10 @@ function (angular, _) {
         value = variable.current.value;
         if (self.isAllValue(value)) {
           value = self.getAllValue(variable);
+          // skip formating of custom all values
+          if (variable.allValue) {
+            return value;
+          }
         }
 
         var res = self.formatValue(value, format, variable);

@@ -1,5 +1,4 @@
-define([
-  'angular',
+define(['angular',
   'lodash',
   'app/core/config',
   'vendor/zero_clipboard'
@@ -96,7 +95,8 @@ function (angular, _, config, ZeroClipboard) {
       $scope.shareUrl = linkSrv.addParamsToUrl(baseUrl, params);
 
       var soloUrl = $scope.shareUrl;
-      soloUrl = soloUrl.replace('/dashboard/', '/dashboard-solo/');
+      soloUrl = soloUrl.replace(config.appSubUrl + '/dashboard/', config.appSubUrl + '/dashboard-solo/');
+      soloUrl = soloUrl.replace("&fullscreen", "");
 
       $scope.iframeHtml = '<iframe src="' + soloUrl + '" width="450" height="200" frameborder="0"></iframe>';
 
