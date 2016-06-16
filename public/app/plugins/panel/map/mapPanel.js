@@ -89,9 +89,9 @@ function (angular, app, _, $, L, ThreatControl, config) {
               fillColor: '#f03',
               fillOpacity: 0.5
             }).addTo(map);
-//            if(annotations) {
-//              circle.bindPopup(annotations[id]);
-//            }
+            // if(annotations) {
+            //   circle.bindPopup(annotations[id]);
+            // }
             circles.push(circle);
           }
         }
