@@ -13,7 +13,7 @@ export class RedisQueryCtrl extends QueryCtrl {
   /** @ngInject **/
   constructor($scope, $injector) {
     super($scope, $injector);
-    this.reports = this.datasource.getReportList();
+    this.reports = this.datasource.getReportList(this.panel.type);
     var report = this.panel.report;
     if (report) {
         this.options = this.datasource.getOptions(report.id);

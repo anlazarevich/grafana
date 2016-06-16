@@ -61,6 +61,7 @@ function (iso2geo, isoCodeList) {
 
     var reports  = {'geo_dest_watch_list':{ 'name':'Geographic Destination Watch List',
                       'fields': watchListFields,
+                      'panelType': 'graph',
                       'options': countryList,
                       'dim':['timestamp','country','tag'],
                       'sort': 'orderByTs',
@@ -70,30 +71,36 @@ function (iso2geo, isoCodeList) {
                       'fields':[{'id':'watchlist_traffic','name':'Watchlist Traffic'},
                                 {'id':'total_traffic','name':'Total Traffic'}],
                         'dim':['timestamp','country','tag'],
+                        'panelType': 'piechart',
                         'transform': 'transform2WatchTotalTraffic',
                         'table':queryStatDbTable},
                      'top_security_dest':{ 'name':'Top Security Destinations by type',
                           'dim': ['tag', 'timestamp'],
                           'sort': 'orderByTs',
+                          'panelType': 'graph',
                           'transform': 'transform2TopSecurity',
                           'table':queryStatDbTable},
                        'known_vs_bad_traffic':{ 'name':'Known Bad vs Total Traffic',
                             'fields':[{'id':'bad_traffic','name':'Known Bad Traffic'},
                                       {'id':'total_traffic','name':'Total Traffic'}],
                               'dim':['timestamp','tag'],
+                              'panelType': 'piechart',
                               'transform': 'transform2KnowBadTraffic',
                               'table':queryStatDbTable},
                        'geo_map': { 'name':'All Traffic Distribution on the world map',
                          'dim':['timestamp','country','tag'],
+                         'panelType': 'map',
                          'transform': 'transform2GeoMap',
                          'table':queryStatDbTable},
                        'detected_threat_geo_map': { 'name':'Detected Traffic Distribution on the world map',
+                           'panelType': 'map',
                            'dim':['timestamp','country','tag'],
                            'transform': 'transform2DetectedThreatGeoMap',
                            'table':queryStatDbTable},
                        'top_bad_traffic_users': { 'name':'Top Bad Trafic Users',
                          'dim':['client'],
                          'sort': 'orderByCount',
+                         'panelType': 'histogramgraph',
                          'transform': 'transform2TopClientList',
                          'table':clientStatDbTable},
                        'graph': { 'name':'Top Bad Trafic Users',
@@ -103,25 +110,20 @@ function (iso2geo, isoCodeList) {
                          'table':clientStatDbTable}
     };
 
-    this.reportList;
-
     var transformers = {transform2GeoWatchList: transform2GeoWatchList, transform2WatchTotalTraffic: transform2WatchTotalTraffic,
         transform2TopSecurity: transform2TopSecurity, transform2KnowBadTraffic: transform2KnowBadTraffic,
         transform2GeoMap: transform2GeoMap, transform2TopClientList: transform2TopClientList,
         transform2GraphList: transform2GraphList, transform2DetectedThreatGeoMap: transform2DetectedThreatGeoMap};
     var sorts = {orderByCount: orderByCount, orderByTs: orderByTs};
 
-    this.getReportList = function() {
-      if(this.reportList) {
-        return this.reportList;
-      }
+    this.getReportList = function(panelType) {
       var res = [];
       for(var key in reports) {
-        if(!reports[key].hide) {
-          res.push({'label':reports[key].name, 'id': key});
+        var report = reports[key];
+        if(!report.hide && report.panelType === panelType) {
+          res.push({'label':report.name, 'id': key});
         }
       }
-      this.reportList = res;
       return res;
     };
 
