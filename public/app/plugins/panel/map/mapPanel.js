@@ -52,9 +52,9 @@ function (angular, app, _, $, L, ThreatControl, config) {
 
         function initMap() {
           L.Icon.Default.imagePath = config.appSubUrl + '/public/vendor/leaflet/dist/images';
-          map = L.map(elem[0]).setView([37.8, -96], 2);
+          map = L.map(elem[0], {worldCopyJump: true, minZoom: 2}).setView([37.8, -96], 2);
           L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+            attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
           }).addTo(map);
           if(panel.enableThreatControl) {
             map.addControl(new ThreatControl());
@@ -73,6 +73,7 @@ function (angular, app, _, $, L, ThreatControl, config) {
           if(data.length === 0 || data[0].datapoints.length === 0  || data[0].datapoints[0].length < 3) {
             return;
           }
+
           var mapData = normalize(data);
           // FIXME - The scale was set to 10000 not sure why it broke?
           // Scale value highly depends on number of hits in a given record if the value is too high then
@@ -89,10 +90,9 @@ function (angular, app, _, $, L, ThreatControl, config) {
               fillColor: '#f03',
               fillOpacity: 0.5
             }).addTo(map);
-            // if(annotations) {
-            //   circle.bindPopup(annotations[id]);
-            // }
+
             circles.push(circle);
+            circle.bindPopup(id + ": " + val.measure);
           }
         }
 
