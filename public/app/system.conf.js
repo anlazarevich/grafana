@@ -27,6 +27,7 @@ System.config({
     "jquery.flot.crosshair": "vendor/flot/jquery.flot.crosshair",
     "jquery.flot.fillbelow": "vendor/flot/jquery.flot.fillbelow",
     "jquery.flot.navigate": "vendor/flot/jquery.flot.navigate",
+    "jquery.flot.tooltip": "vendor/flot.tooltip/js/jquery.flot.tooltip",
     "leaflet": "vendor/leaflet/dist/leaflet",
     "sigma": "vendor/sigma/build/sigma",
     "sigma.force2Atlas": "vendor/sigma/build/plugins/sigma.layout.forceAtlas2.min.js",

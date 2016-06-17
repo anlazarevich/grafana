@@ -4,6 +4,7 @@ define([
   'jquery',
   'jquery.flot',
   'jquery.flot.pie',
+  'jquery.flot.tooltip'
 ],
 function (angular, _, $) {
   'use strict';
@@ -77,9 +78,17 @@ function (angular, _, $) {
                   show: panel.legend.show && panel.legendType === 'On graph'
                 }
               }
-            //},
-            //grid: {
-            //  hoverable: true
+            },
+            grid: {
+              hoverable: true
+            },
+            tooltip: {
+              show: true,
+              content: "%p.0%, %s",
+              shifts: {
+                x: 20,
+                y: 0
+              }
             }
           };
 
@@ -101,7 +110,6 @@ function (angular, _, $) {
             var series = data[i];
             series.data = series.stats.total;
           }
-
           $.plot(plotCanvas, data, options);
         }
 
