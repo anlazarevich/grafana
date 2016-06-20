@@ -53,7 +53,11 @@ function (angular, app, _, $, L, ThreatControl, config, popup) {
 
         function initMap() {
           L.Icon.Default.imagePath = config.appSubUrl + '/public/vendor/leaflet/dist/images';
-          map = L.map(elem[0], {worldCopyJump: true, minZoom: 2, maxBounds: [[-84.607559, -180], [84.972766, 180]]}).setView([37.8, -96], 4);
+          map = L.map(elem[0], {
+            worldCopyJump: true,
+            minZoom: 2,
+            maxBounds: [[-84.607559, -180], [84.972766, 180]]
+          }).setView([37.8, -96], 2);
           L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
           }).addTo(map);
