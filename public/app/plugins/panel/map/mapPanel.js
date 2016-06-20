@@ -13,7 +13,7 @@ function (angular, app, _, $, L, ThreatControl, config, popup) {
 
   var module = angular.module('grafana.directives');
 
-  module.directive('grafanaMap', function() {
+  module.directive('grafanaMap', function($compile) {
 
     return {
       restrict: 'A',
@@ -53,7 +53,7 @@ function (angular, app, _, $, L, ThreatControl, config, popup) {
 
         function initMap() {
           L.Icon.Default.imagePath = config.appSubUrl + '/public/vendor/leaflet/dist/images';
-          map = L.map(elem[0], {worldCopyJump: true, minZoom: 2}).setView([37.8, -96], 2);
+          map = L.map(elem[0], {worldCopyJump: true, minZoom: 2, maxBounds: [[-84.607559, -180], [84.972766, 180]]}).setView([37.8, -96], 4);
           L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
           }).addTo(map);
@@ -93,19 +93,14 @@ function (angular, app, _, $, L, ThreatControl, config, popup) {
             }).addTo(map);
 
             circles.push(circle);
-            console.log(val);
 
-            var numberWithCommas = function(x) {
-              return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-            };
-
-            var count = numberWithCommas(val.measure);
-            if(val.country){
-              circle.bindPopup(popup.replace(/{{country}}/g, val.country.replace(" ", "-")).replace(/{{count}}/g, count));
-            }else{
-              circle.bindPopup("Count: " + val.measure);
+            if(val.country && val.measure){
+              var linkFunction = $compile(angular.element(popup));
+              var newScope = scope.$new();
+              newScope.count = val.measure.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+              newScope.country = val.country.replace(" ", "-");
+              circle.bindPopup(linkFunction(newScope)[0]);
             }
-
           }
         }
 

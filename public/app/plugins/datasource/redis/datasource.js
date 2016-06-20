@@ -221,7 +221,7 @@ function () {
             if(!geo || !geo.coords) {
               continue;
             }
-            res.push([tagValue, ts, geo.coords, iso2Code]);
+            res.push([tagValue, ts, geo.coords, iso2Code, geo.title]);
           }
         }
       }
