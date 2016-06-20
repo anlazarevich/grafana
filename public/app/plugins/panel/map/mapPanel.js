@@ -13,6 +13,18 @@ function (angular, app, _, $, L, ThreatControl, config, popup) {
 
   var module = angular.module('grafana.directives');
 
+  module.directive('errSrc', function() {
+    return {
+      link: function(scope, element, attrs) {
+        element.bind('error', function() {
+          if (attrs.src !== attrs.errSrc) {
+            attrs.$set('src', attrs.errSrc);
+          }
+        });
+      }
+    };
+  });
+
   module.directive('grafanaMap', function($compile) {
 
     return {
@@ -98,11 +110,12 @@ function (angular, app, _, $, L, ThreatControl, config, popup) {
 
             circles.push(circle);
 
-            if(val.country && val.measure){
+            if(val.country && val.measure && val.measure > 0){
               var linkFunction = $compile(angular.element(popup));
               var newScope = scope.$new();
               newScope.count = val.measure.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-              newScope.country = val.country.replace(" ", "-");
+              newScope.country = val.country;
+              newScope.iso = id;
               circle.bindPopup(linkFunction(newScope)[0]);
             }
           }
