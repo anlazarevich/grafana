@@ -1,52 +1,14 @@
 define([
-  './country_latlon.csv!text',
-  './iso3166.csv!text'
+  './geoMap/geoMapService'
 ],
-function (iso2geo, isoCodeList) {
+function () {
   'use strict';
-
-  var geoMap = {}, countryList = [];
-
-  function createGeoMap() {
-    var lines = iso2geo.split('\n'),
-    i, parts, item;
-    for(i = 1; i < lines.length; i++) {
-      parts = lines[i].split(',');
-      if(parts.length === 3) {
-        item = geoMap[parts[0]];
-        if(!item) {
-          item = {};
-          geoMap[parts[0]] = item;
-        }
-        geoMap[parts[0]].coords = [parseFloat(parts[1]), parseFloat(parts[2])];
-      }
-    }
-    lines = isoCodeList.split('\n');
-    for(i = 1; i < lines.length; i++) {
-      parts = lines[i].split(',"');
-      if(parts.length === 2) {
-        var title = parts[1].substring(0, parts[1].length -1);
-        item = geoMap[parts[0]];
-        if(!item) {
-          item = {};
-          geoMap[parts[0]] = item;
-        }
-        geoMap[parts[0]].title = title;
-        countryList.push({'id':parts[0],'name':title});
-      }
-    }
-    countryList.sort(function(a,b) {
-      return (a.name < b.name ? -1 : (a.name > b.name ? 1 : 0));
-    });
-  }
-
-  createGeoMap();
 
   var queryStatDbTable = 'continent:country:severity:confidence:tag.count',
       clientStatDbTable = 'client:severity:confidence:tag.count';
 
   /** @ngInject */
-  function RedisDatasource(instanceSettings, $q, backendSrv) {
+  function RedisDatasource(instanceSettings, $q, backendSrv, geoMapService) {
     var baseUrl = '/api/v1/redis', threatMap, initDsState = 'start', nullTag = 'Null',
     totalEventsTag = 'TotalEvents@IB',
     res_secs = [{'name':'minute', 'range':2*60*60}, {'name':'hour', 'range':48*60*60},
@@ -54,6 +16,9 @@ function (iso2geo, isoCodeList) {
     this.name = instanceSettings.name;
     this.type = instanceSettings.type;
     var url = instanceSettings.url + baseUrl;
+
+    var geoMap = geoMapService.getGeoMap();
+    var countryList = geoMapService.getCountryList();
 
     var watchListFields = [{'id':'CN','name':'China'}, {'id':'RU','name':'Russia'},
                            {'id':'SY','name':'Syria'}, {'id':'IR','name':'Iran'},
@@ -279,7 +244,7 @@ function (iso2geo, isoCodeList) {
             if(!geo || !geo.coords) {
               continue;
             }
-            res.push([tagValue, ts, geo.coords, iso2Code]);
+            res.push([tagValue, ts, geo.coords, iso2Code, geo.title]);
           }
         }
       }

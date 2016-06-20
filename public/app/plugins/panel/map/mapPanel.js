@@ -5,9 +5,10 @@ define([
   'jquery',
   'leaflet',
   './threat_control',
-  'app/core/config'
+  'app/core/config',
+  './popup.html!text'
 ],
-function (angular, app, _, $, L, ThreatControl, config) {
+function (angular, app, _, $, L, ThreatControl, config, popup) {
   'use strict';
 
   var module = angular.module('grafana.directives');
@@ -92,7 +93,19 @@ function (angular, app, _, $, L, ThreatControl, config) {
             }).addTo(map);
 
             circles.push(circle);
-            circle.bindPopup(id + ": " + val.measure);
+            console.log(val);
+
+            var numberWithCommas = function(x) {
+              return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+            };
+
+            var count = numberWithCommas(val.measure);
+            if(val.country){
+              circle.bindPopup(popup.replace(/{{country}}/g, val.country.replace(" ", "-")).replace(/{{count}}/g, count));
+            }else{
+              circle.bindPopup("Count: " + val.measure);
+            }
+
           }
         }
 
@@ -103,7 +116,7 @@ function (angular, app, _, $, L, ThreatControl, config) {
               var id = dp[3];
               var val = map[id];
               if(!val) {
-                map[id] = {measure: dp[0], coords: dp[2]};
+                map[id] = {measure: dp[0], coords: dp[2], country: dp[4]};
               } else {
                 map[id].measure += dp[0];
               }
