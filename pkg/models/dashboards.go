@@ -38,6 +38,8 @@ type Dashboard struct {
 
 	Title string
 	Data  map[string]interface{}
+	
+	ReadOnly bool
 }
 
 // NewDashboard creates a new dashboard
