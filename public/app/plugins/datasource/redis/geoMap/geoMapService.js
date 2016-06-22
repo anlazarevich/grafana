@@ -14,7 +14,6 @@ function (angular, iso2geo, isoCodeList) {
     this.countryList = [];
 
     this.init = function() {
-      console.log('Init geoMapService');
       var lines = iso2geo.split('\n'),
       i, parts, item;
       for(i = 1; i < lines.length; i++) {
