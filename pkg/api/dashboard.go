@@ -34,7 +34,7 @@ func GetDashboard(c *middleware.Context) {
 
 	slug := strings.ToLower(c.Params(":slug"))
 
-	query := m.GetDashboardQuery{Slug: slug, OrgId: c.OrgId}
+	query := m.GetDashboardQuery{Slug: slug, OrgId: c.OrgId, UserId: c.UserId}
 	err := bus.Dispatch(&query)
 	if err != nil {
 		c.JsonApiErr(404, "Dashboard not found", nil)
@@ -92,13 +92,13 @@ func getUserLogin(userId int64) string {
 func DeleteDashboard(c *middleware.Context) {
 	slug := c.Params(":slug")
 
-	query := m.GetDashboardQuery{Slug: slug, OrgId: c.OrgId}
+	query := m.GetDashboardQuery{Slug: slug, OrgId: c.OrgId, UserId: c.UserId}
 	if err := bus.Dispatch(&query); err != nil {
 		c.JsonApiErr(404, "Dashboard not found", nil)
 		return
 	}
 
-	cmd := m.DeleteDashboardCommand{Slug: slug, OrgId: c.OrgId}
+	cmd := m.DeleteDashboardCommand{DashId: query.Result.Id}
 	if err := bus.Dispatch(&cmd); err != nil {
 		c.JsonApiErr(500, "Failed to delete dashboard", err)
 		return
@@ -110,7 +110,7 @@ func DeleteDashboard(c *middleware.Context) {
 }
 
 func PostDashboard(c *middleware.Context, cmd m.SaveDashboardCommand) {
-	cmd.OrgId = c.OrgId
+	//cmd.OrgId = c.OrgId
 
 	if !c.IsSignedIn {
 		cmd.UserId = -1

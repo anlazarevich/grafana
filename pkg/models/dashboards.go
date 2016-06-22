@@ -121,15 +121,14 @@ func (dash *Dashboard) UpdateSlug() {
 type SaveDashboardCommand struct {
 	Dashboard map[string]interface{} `json:"dashboard" binding:"Required"`
 	UserId    int64                  `json:"userId"`
-	OrgId     int64                  `json:"-"`
+	OrgId     int64                  `json:"orgId"`
 	Overwrite bool                   `json:"overwrite"`
 
 	Result *Dashboard
 }
 
-type DeleteDashboardCommand struct {
-	Slug  string
-	OrgId int64
+type DeleteDashboardCommand struct {	
+	DashId int64
 }
 
 //
@@ -137,8 +136,9 @@ type DeleteDashboardCommand struct {
 //
 
 type GetDashboardQuery struct {
-	Slug  string
-	OrgId int64
+	Slug   string
+	OrgId  int64
+	UserId int64
 
 	Result *Dashboard
 }
