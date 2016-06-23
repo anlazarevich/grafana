@@ -3,6 +3,7 @@
 import _ from 'lodash';
 import moment from 'moment';
 import angular from 'angular';
+import $cookies from 'ngCookies';
 import config from 'app/core/config';
 import $ from 'jquery';
 import * as impressionStore from '../impression_store';
@@ -10,7 +11,7 @@ import * as impressionStore from '../impression_store';
 export class DashNavCtrl {
 
   /** @ngInject */
-  constructor($scope, $rootScope, alertSrv, $location, playlistSrv, backendSrv, $timeout) {
+  constructor($scope, $rootScope, alertSrv, $location, playlistSrv, backendSrv, $timeout, $cookies) {
 
     $scope.init = function() {
       $scope.onAppEvent('save-dashboard', $scope.saveDashboard);
@@ -20,7 +21,14 @@ export class DashNavCtrl {
 
       $scope.showSettingsMenu = $scope.dashboardMeta.canEdit || $scope.contextSrv.isEditor;
       $scope.xaasUrl = config.xaasUrl;
-
+      $scope.xaasView = 'Services'; // xaas portal redirects to services by default
+      var xaasLocation = $cookies.getObject('xaas_portal_loc');
+      if (xaasLocation && xaasLocation.url){
+        $scope.xaasUrl = xaasLocation.url;
+      }
+      if (xaasLocation && xaasLocation.view){
+        $scope.xaasView = xaasLocation.view;
+      }
       if ($scope.dashboardMeta.isSnapshot) {
         $scope.showSettingsMenu = false;
         var meta = $scope.dashboardMeta;

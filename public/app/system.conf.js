@@ -16,6 +16,7 @@ System.config({
     "angular-strap":          "vendor/angular-other/angular-strap.js",
     "angular-dragdrop":       "vendor/angular-native-dragdrop/draganddrop.js",
     "angular-bindonce":       "vendor/angular-bindonce/bindonce.js",
+    "angular-cookies":       "vendor/angular-cookies/angular-cookies.js",
     "spectrum": "vendor/spectrum.js",
     "bootstrap-tagsinput": "vendor/tagsinput/bootstrap-tagsinput.js",
     "jquery.flot": "vendor/flot/jquery.flot",

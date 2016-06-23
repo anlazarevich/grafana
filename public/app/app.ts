@@ -9,6 +9,7 @@ import 'angular-sanitize';
 import 'angular-dragdrop';
 import 'angular-bindonce';
 import 'angular-ui';
+import 'angular-cookies';
 
 import $ from 'jquery';
 import angular from 'angular';
@@ -73,7 +74,8 @@ export class GrafanaApp {
       'pasvaz.bindonce',
       'ui.bootstrap',
       'ui.bootstrap.tpls',
-      'ngGravatar'
+      'ngGravatar',
+      'ngCookies'
     ];
 
     var module_types = ['controllers', 'directives', 'factories', 'services', 'filters', 'routes'];
