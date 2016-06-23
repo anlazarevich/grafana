@@ -71,7 +71,7 @@ func GetDashboard(c *middleware.Context) {
 			Updated:   dash.Updated,
 			UpdatedBy: updater,
 			CreatedBy: creator,
-			Version:   dash.Version,
+			Version:   dash.Version,			  
 		},
 	}
 
@@ -109,11 +109,10 @@ func DeleteDashboard(c *middleware.Context) {
 	c.JSON(200, resp)
 }
 
-func PostDashboard(c *middleware.Context, cmd m.SaveDashboardCommand) {
-	//cmd.OrgId = c.OrgId
+func PostDashboard(c *middleware.Context, cmd m.SaveDashboardCommand) {	
 
-	if !c.IsSignedIn {
-		cmd.UserId = -1
+	if cmd.Dashboard["visibility"] == m.DashVisPublic {
+		cmd.OrgId = c.OrgId
 	} else {
 		cmd.UserId = c.UserId
 	}

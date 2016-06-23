@@ -39,6 +39,7 @@ function (angular, $, _, moment) {
       this.schemaVersion = data.schemaVersion || 0;
       this.version = data.version || 0;
       this.links = data.links || [];
+      this.visibility = data.visibility || 'private';
       this._updateSchema(data);
       this._initMeta(meta);
     }

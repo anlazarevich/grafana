@@ -38,7 +38,7 @@ function setupAngularRoutes($routeProvider, $locationProvider) {
     reloadOnSearch: false,
     pageClass: 'page-dashboard',
   })
-  .when('/dashboard/new', {
+  .when('/dashboard-new/:visibility', {
     templateUrl: 'public/app/partials/dashboard.html',
     controller : 'NewDashboardCtrl',
     reloadOnSearch: false,
