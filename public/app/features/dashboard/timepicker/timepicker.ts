@@ -55,6 +55,7 @@ export class TimePickerCtrl {
       if (moment.isMoment(timeRaw.to)) {
         timeRaw.to.local();
       }
+      this.isUtc = false;
     } else {
       this.isUtc = true;
     }
