@@ -1,52 +1,14 @@
 define([
-  './country_latlon.csv!text',
-  './iso3166.csv!text'
+  './geoMap/geoMapService'
 ],
-function (iso2geo, isoCodeList) {
+function () {
   'use strict';
-
-  var geoMap = {}, countryList = [];
-
-  function createGeoMap() {
-    var lines = iso2geo.split('\n'),
-    i, parts, item;
-    for(i = 1; i < lines.length; i++) {
-      parts = lines[i].split(',');
-      if(parts.length === 3) {
-        item = geoMap[parts[0]];
-        if(!item) {
-          item = {};
-          geoMap[parts[0]] = item;
-        }
-        geoMap[parts[0]].coords = [parseFloat(parts[1]), parseFloat(parts[2])];
-      }
-    }
-    lines = isoCodeList.split('\n');
-    for(i = 1; i < lines.length; i++) {
-      parts = lines[i].split(',"');
-      if(parts.length === 2) {
-        var title = parts[1].substring(0, parts[1].length -1);
-        item = geoMap[parts[0]];
-        if(!item) {
-          item = {};
-          geoMap[parts[0]] = item;
-        }
-        geoMap[parts[0]].title = title;
-        countryList.push({'id':parts[0],'name':title});
-      }
-    }
-    countryList.sort(function(a,b) {
-      return (a.name < b.name ? -1 : (a.name > b.name ? 1 : 0));
-    });
-  }
-
-  createGeoMap();
 
   var queryStatDbTable = 'continent:country:severity:confidence:tag.count',
       clientStatDbTable = 'client:severity:confidence:tag.count';
 
   /** @ngInject */
-  function RedisDatasource(instanceSettings, $q, backendSrv) {
+  function RedisDatasource(instanceSettings, $q, backendSrv, geoMapService) {
     var baseUrl = '/api/v1/redis', threatMap, initDsState = 'start', nullTag = 'Null',
     totalEventsTag = 'TotalEvents@IB',
     res_secs = [{'name':'minute', 'range':2*60*60}, {'name':'hour', 'range':48*60*60},
@@ -55,12 +17,16 @@ function (iso2geo, isoCodeList) {
     this.type = instanceSettings.type;
     var url = instanceSettings.url + baseUrl;
 
+    var geoMap = geoMapService.getGeoMap();
+    var countryList = geoMapService.getCountryList();
+
     var watchListFields = [{'id':'CN','name':'China'}, {'id':'RU','name':'Russia'},
                            {'id':'SY','name':'Syria'}, {'id':'IR','name':'Iran'},
                            {'id':'SI','name':'Slovenia'}];
 
     var reports  = {'geo_dest_watch_list':{ 'name':'Geographic Destination Watch List',
                       'fields': watchListFields,
+                      'panelType': 'graph',
                       'options': countryList,
                       'dim':['timestamp','country','tag'],
                       'sort': 'orderByTs',
@@ -70,30 +36,36 @@ function (iso2geo, isoCodeList) {
                       'fields':[{'id':'watchlist_traffic','name':'Watchlist Traffic'},
                                 {'id':'total_traffic','name':'Total Traffic'}],
                         'dim':['timestamp','country','tag'],
+                        'panelType': 'piechart',
                         'transform': 'transform2WatchTotalTraffic',
                         'table':queryStatDbTable},
                      'top_security_dest':{ 'name':'Top Security Destinations by type',
                           'dim': ['tag', 'timestamp'],
                           'sort': 'orderByTs',
+                          'panelType': 'graph',
                           'transform': 'transform2TopSecurity',
                           'table':queryStatDbTable},
                        'known_vs_bad_traffic':{ 'name':'Known Bad vs Total Traffic',
                             'fields':[{'id':'bad_traffic','name':'Known Bad Traffic'},
                                       {'id':'total_traffic','name':'Total Traffic'}],
                               'dim':['timestamp','tag'],
+                              'panelType': 'piechart',
                               'transform': 'transform2KnowBadTraffic',
                               'table':queryStatDbTable},
                        'geo_map': { 'name':'All Traffic Distribution on the world map',
                          'dim':['timestamp','country','tag'],
+                         'panelType': 'map',
                          'transform': 'transform2GeoMap',
                          'table':queryStatDbTable},
                        'detected_threat_geo_map': { 'name':'Detected Traffic Distribution on the world map',
+                           'panelType': 'map',
                            'dim':['timestamp','country','tag'],
                            'transform': 'transform2DetectedThreatGeoMap',
                            'table':queryStatDbTable},
                        'top_bad_traffic_users': { 'name':'Top Bad Trafic Users',
                          'dim':['client'],
                          'sort': 'orderByCount',
+                         'panelType': 'histogramgraph',
                          'transform': 'transform2TopClientList',
                          'table':clientStatDbTable},
                        'graph': { 'name':'Top Bad Trafic Users',
@@ -103,25 +75,20 @@ function (iso2geo, isoCodeList) {
                          'table':clientStatDbTable}
     };
 
-    this.reportList;
-
     var transformers = {transform2GeoWatchList: transform2GeoWatchList, transform2WatchTotalTraffic: transform2WatchTotalTraffic,
         transform2TopSecurity: transform2TopSecurity, transform2KnowBadTraffic: transform2KnowBadTraffic,
         transform2GeoMap: transform2GeoMap, transform2TopClientList: transform2TopClientList,
         transform2GraphList: transform2GraphList, transform2DetectedThreatGeoMap: transform2DetectedThreatGeoMap};
     var sorts = {orderByCount: orderByCount, orderByTs: orderByTs};
 
-    this.getReportList = function() {
-      if(this.reportList) {
-        return this.reportList;
-      }
+    this.getReportList = function(panelType) {
       var res = [];
       for(var key in reports) {
-        if(!reports[key].hide) {
-          res.push({'label':reports[key].name, 'id': key});
+        var report = reports[key];
+        if(!report.hide && report.panelType === panelType) {
+          res.push({'label':report.name, 'id': key});
         }
       }
-      this.reportList = res;
       return res;
     };
 
@@ -254,7 +221,7 @@ function (iso2geo, isoCodeList) {
             if(!geo || !geo.coords) {
               continue;
             }
-            res.push([tagValue, ts, geo.coords, iso2Code]);
+            res.push([tagValue, ts, geo.coords, iso2Code, geo.title]);
           }
         }
       }
@@ -277,7 +244,7 @@ function (iso2geo, isoCodeList) {
             if(!geo || !geo.coords) {
               continue;
             }
-            res.push([tagValue, ts, geo.coords, iso2Code]);
+            res.push([tagValue, ts, geo.coords, iso2Code, geo.title]);
           }
         }
       }

@@ -19,9 +19,13 @@
     "angular-mocks": "~1.5.3",
     "angular-sanitize": "~1.5.3",
     "angular-bindonce": "~0.3.3",
+    "angular-cookies": "~1.5.1",
     "leaflet": "~0.7.7",
     "sigma": "~1.0.3",
     "crypto-js": "CryptoJS#~3.1.12",
     "paging": "1.2.0"
+  },
+  "resolutions": {
+    "angular": "~1.5.1"
   }
 }

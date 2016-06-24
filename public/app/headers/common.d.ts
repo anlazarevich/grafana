@@ -23,6 +23,11 @@ declare module 'angular' {
   export default angular;
 }
 
+declare module 'ngCookies' {
+  var ngCookies: any;
+  export default ngCookies;
+}
+
 declare module 'jquery' {
   var jquery: any;
   export default jquery;

@@ -5,14 +5,27 @@ define([
   'jquery',
   'leaflet',
   './threat_control',
-  'app/core/config'
+  'app/core/config',
+  './popup.html!text'
 ],
-function (angular, app, _, $, L, ThreatControl, config) {
+function (angular, app, _, $, L, ThreatControl, config, popup) {
   'use strict';
 
   var module = angular.module('grafana.directives');
 
-  module.directive('grafanaMap', function() {
+  module.directive('errSrc', function() {
+    return {
+      link: function(scope, element, attrs) {
+        element.bind('error', function() {
+          if (attrs.src !== attrs.errSrc) {
+            attrs.$set('src', attrs.errSrc);
+          }
+        });
+      }
+    };
+  });
+
+  module.directive('grafanaMap', function($compile) {
 
     return {
       restrict: 'A',
@@ -52,9 +65,13 @@ function (angular, app, _, $, L, ThreatControl, config) {
 
         function initMap() {
           L.Icon.Default.imagePath = config.appSubUrl + '/public/vendor/leaflet/dist/images';
-          map = L.map(elem[0]).setView([37.8, -96], 2);
+          map = L.map(elem[0], {
+            worldCopyJump: true,
+            minZoom: 2,
+            maxBounds: [[-84.607559, -180], [84.972766, 180]]
+          }).setView([37.8, -96], 2);
           L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+            attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
           }).addTo(map);
           if(panel.enableThreatControl) {
             map.addControl(new ThreatControl());
@@ -73,6 +90,7 @@ function (angular, app, _, $, L, ThreatControl, config) {
           if(data.length === 0 || data[0].datapoints.length === 0  || data[0].datapoints[0].length < 3) {
             return;
           }
+
           var mapData = normalize(data);
           // FIXME - The scale was set to 10000 not sure why it broke?
           // Scale value highly depends on number of hits in a given record if the value is too high then
@@ -89,10 +107,17 @@ function (angular, app, _, $, L, ThreatControl, config) {
               fillColor: '#f03',
               fillOpacity: 0.5
             }).addTo(map);
-//            if(annotations) {
-//              circle.bindPopup(annotations[id]);
-//            }
+
             circles.push(circle);
+
+            if(val.country && val.measure && val.measure > 0){
+              var linkFunction = $compile(angular.element(popup));
+              var newScope = scope.$new();
+              newScope.count = val.measure.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+              newScope.country = val.country;
+              newScope.iso = id;
+              circle.bindPopup(linkFunction(newScope)[0]);
+            }
           }
         }
 
@@ -103,7 +128,7 @@ function (angular, app, _, $, L, ThreatControl, config) {
               var id = dp[3];
               var val = map[id];
               if(!val) {
-                map[id] = {measure: dp[0], coords: dp[2]};
+                map[id] = {measure: dp[0], coords: dp[2], country: dp[4]};
               } else {
                 map[id].measure += dp[0];
               }

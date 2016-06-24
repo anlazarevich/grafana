@@ -66,8 +66,8 @@ func GetDashboard(c *middleware.Context) {
 			Slug:      slug,
 			Type:      m.DashTypeDB,
 			CanStar:   c.IsSignedIn,
-			CanSave:   c.OrgRole == m.ROLE_ADMIN || c.OrgRole == m.ROLE_EDITOR,
-			CanEdit:   canEditDashboard(c.OrgRole),
+			CanSave:   canSaveDashboard(c.OrgRole, dash.ReadOnly),
+			CanEdit:   canEditDashboard(c.OrgRole, dash.ReadOnly),
 			Created:   dash.Created,
 			Updated:   dash.Updated,
 			UpdatedBy: updater,
@@ -155,8 +155,12 @@ func PostDashboard(c *middleware.Context, cmd m.SaveDashboardCommand) {
 	c.JSON(200, util.DynMap{"status": "success", "slug": cmd.Result.Slug, "version": cmd.Result.Version})
 }
 
-func canEditDashboard(role m.RoleType) bool {
-	return role == m.ROLE_ADMIN || role == m.ROLE_EDITOR || role == m.ROLE_READ_ONLY_EDITOR
+func canEditDashboard(role m.RoleType, read_only bool) bool {
+	return (role == m.ROLE_ADMIN || role == m.ROLE_EDITOR || role == m.ROLE_READ_ONLY_EDITOR) && !read_only
+}
+
+func canSaveDashboard(role m.RoleType, read_only bool) bool {
+	return (role == m.ROLE_ADMIN || role == m.ROLE_EDITOR) && !read_only
 }
 
 func GetHomeDashboard(c *middleware.Context) Response {
@@ -184,7 +188,7 @@ func GetHomeDashboard(c *middleware.Context) Response {
 
 	dash := dtos.DashboardFullWithMeta{}
 	dash.Meta.IsHome = true
-	dash.Meta.CanEdit = canEditDashboard(c.OrgRole)
+	dash.Meta.CanEdit = canEditDashboard(c.OrgRole, false)
 	jsonParser := json.NewDecoder(file)
 	if err := jsonParser.Decode(&dash.Dashboard); err != nil {
 		return ApiError(500, "Failed to load home dashboard", err)
@@ -204,7 +208,7 @@ func GetDashboardFromJsonFile(c *middleware.Context) {
 
 	dash := dtos.DashboardFullWithMeta{Dashboard: dashboard.Data}
 	dash.Meta.Type = m.DashTypeJson
-	dash.Meta.CanEdit = canEditDashboard(c.OrgRole)
+	dash.Meta.CanEdit = canEditDashboard(c.OrgRole, false)
 
 	c.JSON(200, &dash)
 }

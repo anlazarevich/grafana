@@ -39,6 +39,7 @@ type Dashboard struct {
 
 	Title string
 	Data  *simplejson.Json
+	ReadOnly bool
 }
 
 // NewDashboard creates a new dashboard
