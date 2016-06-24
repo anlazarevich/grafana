@@ -72,6 +72,7 @@ func SaveDashboard(cmd *m.SaveDashboardCommand) error {
 
 		if dash.Id == 0 {
 			metrics.M_Models_Dashboard_Insert.Inc(1)
+            sess.Nullable("org_id")	     	                			
 			affectedRows, err = sess.Insert(dash)
 		} else {
 			dash.Version += 1
