@@ -64,7 +64,11 @@
 	<div class="search-button-row">
 		<button class="btn btn-inverse pull-left" ng-click="ctrl.newDashboard()" ng-show="ctrl.contextSrv.isEditor">
 			<i class="fa fa-plus"></i>
-			New
+			New Private
+		</button>
+		<button class="btn btn-inverse pull-left" ng-click="ctrl.newDashboard(true)" ng-show="ctrl.contextSrv.isEditor">
+			<i class="fa fa-plus"></i>
+			New Public
 		</button>
 		<a class="btn btn-inverse pull-left" href="import/dashboard" ng-show="ctrl.contextSrv.isEditor">
 			<i class="fa fa-download"></i>

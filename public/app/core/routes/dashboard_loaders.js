@@ -1,5 +1,5 @@
 define([
-  '../core_module',
+  '../core_module'
 ],
 function (coreModule) {
   "use strict";
@@ -37,11 +37,12 @@ function (coreModule) {
     }, $scope);
   });
 
-  coreModule.default.controller('NewDashboardCtrl', function($scope) {
+  coreModule.default.controller('NewDashboardCtrl', function($scope, $routeParams) {
     $scope.initDashboard({
       meta: { canStar: false, canShare: false },
       dashboard: {
         title: "New dashboard",
+        visibility: $routeParams.visibility,
         rows: [{ height: '250px', panels:[] }]
       },
     }, $scope);
