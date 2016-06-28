@@ -148,8 +148,8 @@ export class SearchCtrl {
     this.searchDashboards();
   };
 
-  newDashboard() {
-    this.$location.url('dashboard/new');
+  newDashboard(publicFlg) {
+    this.$location.url('dashboard-new/' + (publicFlg ? 'public' : 'private'));
   };
 }
 

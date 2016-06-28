@@ -29,7 +29,7 @@ func SaveDashboard(cmd *m.SaveDashboardCommand) error {
 		var existing, sameTitle m.Dashboard
 
 		if dash.Id > 0 {
-			dashWithIdExists, err := sess.Where("id=? AND org_id=?", dash.Id, dash.OrgId).Get(&existing)
+			dashWithIdExists, err := sess.Where("id=? AND (org_id=? or created_by=?)", dash.Id, dash.OrgId, cmd.UserId).Get(&existing)
 			if err != nil {
 				return err
 			}
@@ -46,8 +46,14 @@ func SaveDashboard(cmd *m.SaveDashboardCommand) error {
 				}
 			}
 		}
-
-		sameTitleExists, err := sess.Where("org_id=? AND slug=?", dash.OrgId, dash.Slug).Get(&sameTitle)
+        var sameTitleExists bool
+        var err error
+        if dash.OrgId > 0 {
+        	sameTitleExists, err = sess.Where("org_id=? AND slug=?", dash.OrgId, dash.Slug).Get(&sameTitle)
+        } else {
+        	sameTitleExists, err = sess.Where("created_by=? AND slug=?", cmd.UserId, dash.Slug).Get(&sameTitle)
+        }
+		
 		if err != nil {
 			return err
 		}
@@ -67,6 +73,7 @@ func SaveDashboard(cmd *m.SaveDashboardCommand) error {
 
 		if dash.Id == 0 {
 			metrics.M_Models_Dashboard_Insert.Inc(1)
+            sess.Nullable("org_id")	     	                			
 			affectedRows, err = sess.Insert(dash)
 		} else {
 			dash.Version += 1
@@ -101,8 +108,10 @@ func SaveDashboard(cmd *m.SaveDashboardCommand) error {
 }
 
 func GetDashboard(query *m.GetDashboardQuery) error {
-	dashboard := m.Dashboard{Slug: query.Slug, OrgId: query.OrgId}
-	has, err := x.Get(&dashboard)
+	
+	dashboard := m.Dashboard{Slug: query.Slug}
+	has, err := x.Where("slug = ? and (org_id = ? or created_by = ?)", query.Slug, query.OrgId, query.UserId).Get(&dashboard)
+	//has, err := x.Get(&dashboard)
 	if err != nil {
 		return err
 	} else if has == false {
@@ -138,9 +147,10 @@ func SearchDashboards(query *search.FindPersistedDashboardsQuery) error {
 		sql.WriteString(" INNER JOIN star on star.dashboard_id = dashboard.id")
 	}
 
-	sql.WriteString(` WHERE dashboard.org_id=?`)
+	sql.WriteString(` WHERE (dashboard.org_id=? or created_by=?)`)
 
 	params = append(params, query.OrgId)
+	params = append(params, query.UserId)
 
 	if query.IsStarred {
 		sql.WriteString(` AND star.user_id=?`)
@@ -215,13 +225,13 @@ func GetDashboardTags(query *m.GetDashboardTagsQuery) error {
 
 func DeleteDashboard(cmd *m.DeleteDashboardCommand) error {
 	return inTransaction2(func(sess *session) error {
-		dashboard := m.Dashboard{Slug: cmd.Slug, OrgId: cmd.OrgId}
-		has, err := sess.Get(&dashboard)
-		if err != nil {
-			return err
-		} else if has == false {
-			return m.ErrDashboardNotFound
-		}
+//		dashboard := m.Dashboard{Slug: cmd.Slug, OrgId: cmd.OrgId}
+//		has, err := sess.Get(&dashboard)
+//		if err != nil {
+//			return err
+//		} else if has == false {
+//			return m.ErrDashboardNotFound
+//		}
 
 		deletes := []string{
 			"DELETE FROM dashboard_tag WHERE dashboard_id = ? ",
@@ -230,7 +240,7 @@ func DeleteDashboard(cmd *m.DeleteDashboardCommand) error {
 		}
 
 		for _, sql := range deletes {
-			_, err := sess.Exec(sql, dashboard.Id)
+			_, err := sess.Exec(sql, cmd.DashId)
 			if err != nil {
 				return err
 			}

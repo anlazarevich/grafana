@@ -24,6 +24,11 @@ var (
 	DashTypeSnapshot = "snapshot"
 )
 
+const (
+	DashVisPrivate = "private"
+	DashVisPublic  = "public"
+)
+
 // Dashboard model
 type Dashboard struct {
 	Id      int64
@@ -112,16 +117,15 @@ func (dash *Dashboard) UpdateSlug() {
 
 type SaveDashboardCommand struct {
 	Dashboard *simplejson.Json `json:"dashboard" binding:"Required"`
-	UserId    int64            `json:"userId"`
-	OrgId     int64            `json:"-"`
 	Overwrite bool             `json:"overwrite"`
 
-	Result *Dashboard
+    UserId     int64
+	OrgId      int64
+	Result     *Dashboard
 }
 
-type DeleteDashboardCommand struct {
-	Slug  string
-	OrgId int64
+type DeleteDashboardCommand struct {	
+	DashId int64
 }
 
 //
@@ -129,8 +133,9 @@ type DeleteDashboardCommand struct {
 //
 
 type GetDashboardQuery struct {
-	Slug  string
-	OrgId int64
+	Slug   string
+	OrgId  int64
+	UserId int64
 
 	Result *Dashboard
 }
