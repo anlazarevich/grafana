@@ -39,3 +39,6 @@ And finally run Grafana server:
 ```
 $ bin/grafana-server
 ```
+
+##Notes
+Before running Grafana server make sure Rails server is properly integrated with Grafana and up. Double check the step https://github.com/Infoblox-CTO/xaas-web/blob/master/ixaas/README.md#grafana-integration 
