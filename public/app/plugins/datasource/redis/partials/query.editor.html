@@ -8,12 +8,14 @@
       </select>
 </div>
 	  
-<query-editor-row ng-if="ctrl.isHidden()" ctrl="ctrl">
-  <li class="tight-form-item query-keyword" style="width: 75px">
-	 Field</li>
-  <li> <select class="tight-form-input input-large"
-	ng-model="ctrl.target.field" ng-change="ctrl.refresh()"
-	ng-options="field.name for field in ctrl.options track by field.id">		
-      </select>
-  </li>
+<query-editor-row ng-if="ctrl.isHidden()" query-ctrl="ctrl">
+  <ul style="display: inline-block;">
+	  <li class="tight-form-item query-keyword" style="width: 75px">
+		 Field</li>
+	  <li style="display: inline-block;"> <select class="tight-form-input input-large"
+		ng-model="ctrl.target.field" ng-change="ctrl.refresh()"
+		ng-options="field.name for field in ctrl.options track by field.id">		
+	      </select>
+	  </li>
+  </ul>
 </query-editor-row>
